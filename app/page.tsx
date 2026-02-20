@@ -391,8 +391,8 @@ export default function Home() {
                 maxWidth: "520px",
               }}
             >
-              Coordinated agent run harness. Breaks down a task into a task
-              graph, then executes it end-to-end via a persistent{" "}
+              Coordinated agent run harness. Breaks down a task into a graph
+              of tasks, then executes it end-to-end via a persistent{" "}
               <a
                 href="https://github.com/ratley/codex-client"
                 style={{ color: "#22d3ee", textDecoration: "none" }}

@@ -1,6 +1,6 @@
 # orca
 
-Coordinated agent run harness. Breaks down a task into a task graph, then executes it end-to-end via a persistent [Codex](https://github.com/ratley/codex-client) session with full context across tasks.
+Coordinated agent run harness. Breaks down a task into a graph of tasks, then executes it end-to-end via a persistent [Codex](https://github.com/ratley/codex-client) session with full context across tasks.
 
 ## Install
 

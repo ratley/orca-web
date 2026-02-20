@@ -1,20 +1,36 @@
 # orca-web
 
-Web docs UI for **orca**.
+UI docs site for the **orca** CLI.
 
-## Development
+## What this repo is
+
+- Next.js app that renders an orca command/config reference page.
+- Main page implementation: `app/page.tsx`
+- Copyable markdown source used by the UI: `app/lib/pageMarkdown.ts`
+
+## Run locally
 
 ```bash
 bun install
 bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000).
+Then open `http://localhost:3000`.
 
-## Related project
+## Useful scripts
 
-- orca GitHub: https://github.com/ratley/orca
+From `package.json`:
 
-## Docs wording
+- `bun dev` — start local dev server
+- `bun run build` — production build
+- `bun start` — run production server
+- `bun run lint` — run Biome checks
+- `bun run format` — format with Biome
 
-This site uses **tasks** (not goals) for user-facing run/planning language.
+## Project links
+
+- orca repository: https://github.com/ratley/orca
+
+## Terminology
+
+Use **task/tasks** in user-facing docs and UI copy (not goal/goals).
