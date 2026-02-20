@@ -232,9 +232,33 @@ function Sidebar() {
         ))}
       </div>
 
-      {/* Agent Skill card — sidebar desktop */}
-      <div style={{ padding: "0 12px" }}>
-        <AgentSkillCard compact />
+      <div style={{ marginTop: "20px" }}>
+        <div
+          style={{
+            fontSize: "10px",
+            fontFamily: "ui-monospace, monospace",
+            letterSpacing: "0.1em",
+            textTransform: "uppercase",
+            color: "#52525b",
+            marginBottom: "8px",
+            paddingLeft: "16px",
+          }}
+        >
+          Resources
+        </div>
+        <a
+          href="#agent-skill"
+          style={{
+            display: "block",
+            padding: "4px 16px",
+            fontSize: "13px",
+            color: "#71717a",
+            textDecoration: "none",
+            fontFamily: "ui-monospace, monospace",
+          }}
+        >
+          Agent Skill
+        </a>
       </div>
     </nav>
   );
@@ -891,10 +915,12 @@ export default {
             <CodeBlock code="feature-auth-1766228123456-1a2b" />
           </section>
 
-          {/* Agent Skill card — mobile only (sidebar hidden on mobile) */}
-          <div className="mobile-agent-skill">
+          {/* Agent Skill */}
+          <section id="agent-skill" style={S.section}>
+            <h2 style={S.h2}>Agent Skill</h2>
+            <p style={S.p}>Drop this SKILL.md into your agent&apos;s skills directory to give it native Orca support.</p>
             <AgentSkillCard />
-          </div>
+          </section>
 
           {/* Footer */}
           <footer
@@ -923,11 +949,9 @@ export default {
 
       {/* Sidebar hide on mobile */}
       <style>{`
-        .mobile-agent-skill { display: none; }
         @media (max-width: 640px) {
           .sidebar-wrapper { display: none !important; }
           main { padding: 0 20px !important; }
-          .mobile-agent-skill { display: block; }
         }
         nav a:hover { color: #22d3ee !important; }
         header a:hover { color: #e2e8f0 !important; }
