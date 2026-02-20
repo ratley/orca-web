@@ -30,8 +30,12 @@ export default {
   executor: "codex",           // "codex" (default) or "claude"
   sessionLogs: "./session-logs",
   hooks: {
-    onComplete: "your-notify-command",
-    onError: "your-error-command",
+    onComplete: async (event, context) => {
+      console.log(event.message, context.cwd);
+    },
+  },
+  hookCommands: {
+    onComplete: "node ./scripts/on-complete.mjs",
   },
   codex: { multiAgent: false },
 }
@@ -39,7 +43,7 @@ export default {
 ## Notes
 - Codex executor requires ~/.codex/auth.json
 - Must be run inside a git repo
-- Run ID format: <adjective>-<noun>-<timestamp>
+- Run ID format: <slug>-<unix-ms>-<hex4>
 - Use orca answer to unblock a waiting run`;
 
 export function AgentSkillCard({ compact = false }: { compact?: boolean }) {
