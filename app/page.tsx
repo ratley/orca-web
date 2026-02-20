@@ -12,7 +12,7 @@ const NAV_COMMANDS = [
   { id: "cmd-cancel", label: "orca cancel" },
   { id: "cmd-answer", label: "orca answer" },
   { id: "cmd-pr", label: "orca pr" },
-  { id: "cmd-pr-finalize", label: "orca pr-finalize" },
+  { id: "cmd-pr-publish", label: "orca pr publish" },
   { id: "cmd-setup", label: "orca setup" },
   { id: "cmd-help", label: "orca help" },
 ];
@@ -621,15 +621,15 @@ orca pr status  --run <run-id>   # check PR status`}
             </table>
           </CmdSection>
 
-          {/* orca pr-finalize */}
+          {/* orca pr publish */}
           <CmdSection
-            id="cmd-pr-finalize"
-            title="orca pr-finalize"
-            usage="orca pr-finalize [flags]"
+            id="cmd-pr-publish"
+            title="orca pr publish"
+            usage="orca pr publish [flags]"
             desc="Finalize the PR workflow — typically run after all tasks complete."
           >
             <CodeBlock
-              code={`orca pr-finalize --config ./orca.config.js`}
+              code={`orca pr publish --config ./orca.config.js`}
               lang="shell"
             />
             <h3 style={S.h3}>Flags</h3>
