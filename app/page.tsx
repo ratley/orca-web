@@ -1,9 +1,11 @@
 import { CodeBlock } from "./components/CodeBlock";
 import { AgentSkillCard } from "./components/AgentSkillCard";
+import { PageCopyButton } from "./components/PageCopyButton";
 
 // ─── Nav items ───────────────────────────────────────────────────────────────
 
-const NAV_COMMANDS = [
+const NAV_COMMANDS: Array<{ id: string; label: string; accent?: boolean }> = [
+  { id: "get-started", label: "Get Started", accent: true },
   { id: "cmd-run", label: "orca <task>" },
   { id: "cmd-plan", label: "orca plan" },
   { id: "cmd-status", label: "orca status" },
@@ -190,9 +192,10 @@ function Sidebar() {
               display: "block",
               padding: "4px 16px",
               fontSize: "13px",
-              color: "#71717a",
+              color: item.accent ? "#22d3ee" : "#71717a",
               textDecoration: "none",
               fontFamily: "ui-monospace, monospace",
+              opacity: item.accent ? 0.85 : 1,
             }}
           >
             {item.label}
@@ -355,6 +358,9 @@ export default function Home() {
             maxWidth: "740px",
           }}
         >
+          {/* ── Copy page button ── */}
+          <PageCopyButton />
+
           {/* ── Hero ── */}
           <section
             id="hero"
@@ -395,7 +401,7 @@ export default function Home() {
               session with full context across tasks.
             </p>
 
-            <div style={{ marginBottom: "8px" }}>
+            <div id="get-started" style={{ marginBottom: "8px" }}>
               <span
                 style={{
                   fontSize: "11px",

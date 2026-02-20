@@ -1,0 +1,362 @@
+export const PAGE_MARKDOWN = `# orca
+
+Coordinated agent run harness. Breaks down a goal into a task graph, then executes it end-to-end via a persistent [Codex](https://github.com/ratley/codex-client) session with full context across tasks.
+
+## Install
+
+\`\`\`shell
+npm install -g orcastrator
+\`\`\`
+
+---
+
+## Commands
+
+### orca \<task\>
+
+**Usage:** \`orca [task] [flags]\`
+
+Start a new run from a plain-language task. Orca plans tasks, executes them in sequence, and persists run state. You can also provide a spec or plan file instead of a task string.
+
+\`\`\`shell
+# Run a task
+orca "add auth to the app"
+
+# Run with a spec or plan file
+orca --spec ./specs/feature.md
+orca --plan ./specs/feature.md
+\`\`\`
+
+**Flags:**
+
+| Flag | Description |
+|------|-------------|
+| \`[task]\` | Plain-language task (positional) |
+| \`--task, -p, --prompt <text>\` | Task as a named flag (alias for positional) |
+| \`--spec <path>\` | Path to a spec/markdown breakdown file |
+| \`--plan <path>\` | Path to a plan file (same as --spec) |
+| \`--config <path>\` | Path to an orca config file |
+| \`--on-milestone <cmd>\` | Shell command to run on each milestone |
+| \`--on-task-complete <cmd>\` | Shell command to run when a task completes |
+| \`--on-task-fail <cmd>\` | Shell command to run when a task fails |
+| \`--on-complete <cmd>\` | Shell command to run when the full run completes |
+| \`--on-error <cmd>\` | Shell command to run on error |
+| \`-h, --help\` | Show help |
+| \`-V, --version\` | Show version |
+
+---
+
+### orca plan
+
+**Usage:** \`orca plan [flags]\`
+
+Plan tasks without executing them. Useful for reviewing the task breakdown before committing to a run.
+
+\`\`\`shell
+orca plan --spec ./specs/feature.md
+\`\`\`
+
+**Flags:**
+
+| Flag | Description |
+|------|-------------|
+| \`--spec <path>\` | Path to a spec/markdown breakdown file |
+| \`--config <path>\` | Path to an orca config file |
+| \`--on-milestone <cmd>\` | Shell command to run on each milestone |
+| \`--on-error <cmd>\` | Shell command to run on error |
+
+---
+
+### orca status
+
+**Usage:** \`orca status [flags]\`
+
+Show the status of a run — tasks completed, in-progress, pending, or failed.
+
+\`\`\`shell
+orca status            # status of most recent run
+orca status --last     # same as above
+orca status --run <id> # status of a specific run
+\`\`\`
+
+**Flags:**
+
+| Flag | Description |
+|------|-------------|
+| \`--run <run-id>\` | Show status for a specific run ID |
+| \`--last\` | Show status for the most recent run |
+| \`--config <path>\` | Path to an orca config file |
+
+---
+
+### orca list
+
+**Usage:** \`orca list [flags]\`
+
+List all runs stored in the runs directory.
+
+\`\`\`shell
+orca list
+\`\`\`
+
+**Flags:**
+
+| Flag | Description |
+|------|-------------|
+| \`--config <path>\` | Path to an orca config file |
+
+---
+
+### orca resume
+
+**Usage:** \`orca resume [flags]\`
+
+Resume a paused or interrupted run from where it left off.
+
+\`\`\`shell
+orca resume --last
+orca resume --run feature-auth-1766228123456-1a2b
+\`\`\`
+
+**Flags:**
+
+| Flag | Description |
+|------|-------------|
+| \`--run <run-id>\` | Resume a specific run by ID |
+| \`--last\` | Resume the most recent run |
+| \`--config <path>\` | Path to an orca config file |
+
+---
+
+### orca cancel
+
+**Usage:** \`orca cancel [flags]\`
+
+Cancel a running or paused run.
+
+\`\`\`shell
+orca cancel --last
+orca cancel --run feature-auth-1766228123456-1a2b
+\`\`\`
+
+**Flags:**
+
+| Flag | Description |
+|------|-------------|
+| \`--run <run-id>\` | Cancel a specific run by ID |
+| \`--last\` | Cancel the most recent run |
+| \`--config <path>\` | Path to an orca config file |
+
+---
+
+### orca answer
+
+**Usage:** \`orca answer <run-id> <answer>\`
+
+Provide an answer to a run that is blocked waiting for input.
+
+\`\`\`shell
+orca answer feature-auth-1766228123456-1a2b "yes, use migration A"
+\`\`\`
+
+**Flags:**
+
+| Flag | Description |
+|------|-------------|
+| \`[run-id]\` | Run ID (positional) |
+| \`[answer]\` | Answer text (positional) |
+| \`--run <id>\` | Run ID as a named flag (alias for positional) |
+
+---
+
+### orca pr
+
+**Usage:** \`orca pr <subcommand> [flags]\`
+
+Manage pull requests for a run. Subcommands: draft, create, publish, status.
+
+\`\`\`shell
+orca pr                          # default pr action
+orca pr draft   --run <run-id>   # open a draft PR
+orca pr create  --run <run-id>   # create a PR
+orca pr publish --run <run-id>   # publish (un-draft) the PR
+orca pr status  --run <run-id>   # check PR status
+\`\`\`
+
+**Flags:**
+
+| Flag | Description |
+|------|-------------|
+| \`--run <run-id>\` | Target a specific run by ID |
+| \`--last\` | Target the most recent run |
+| \`--config <path>\` | Path to an orca config file |
+
+---
+
+### orca pr publish
+
+**Usage:** \`orca pr publish [flags]\`
+
+Finalize the PR workflow — typically run after all tasks complete.
+
+\`\`\`shell
+orca pr publish --config ./orca.config.js
+\`\`\`
+
+**Flags:**
+
+| Flag | Description |
+|------|-------------|
+| \`--config <path>\` | Path to an orca config file |
+
+---
+
+### orca setup
+
+**Usage:** \`orca setup [flags]\`
+
+Configure API keys and environment. Supports scoped config (global or project-level).
+
+\`\`\`shell
+orca setup --openai-key sk-...
+orca setup --anthropic-key sk-ant-...
+orca setup --check     # verify current config
+orca setup --global    # write to ~/.orca/config.js
+orca setup --project   # write to ./orca.config.js
+\`\`\`
+
+**Flags:**
+
+| Flag | Description |
+|------|-------------|
+| \`--openai-key <key>\` | Set OpenAI API key |
+| \`--anthropic-key <key>\` | Set Anthropic API key |
+| \`--check\` | Verify current configuration is valid |
+| \`--global\` | Write config to ~/.orca/config.js |
+| \`--project\` | Write config to ./orca.config.js |
+
+---
+
+### orca help
+
+**Usage:** \`orca help [command]\`
+
+Show help for any command.
+
+\`\`\`shell
+orca help
+orca help plan
+orca help pr
+orca --help
+\`\`\`
+
+---
+
+## Config
+
+### Config Discovery
+
+Orca auto-discovers config in this order — later entries override earlier ones:
+
+1. \`~/.orca/config.js\` — global user config
+2. \`./orca.config.js\` or \`./orca.config.ts\` — project config
+3. \`--config <path>\` — explicit override
+
+Run state is stored at \`<runsDir>/<run-id>/status.json\`. Defaults to \`~/.orca/runs\` unless overridden by \`ORCA_RUNS_DIR\`.
+
+---
+
+### Config Options
+
+Full example — all options are optional:
+
+\`\`\`js
+// orca.config.js
+export default {
+  // Directory where run state is persisted
+  runsDir: "./.orca/runs",
+
+  // Directory for session logs
+  sessionLogs: "./session-logs",
+
+  // Hook commands — shell strings run at lifecycle events
+  hookCommands: {
+    onMilestone:    "echo milestone: $ORCA_MILESTONE",
+    onTaskComplete: "echo task done: $ORCA_TASK_NAME",
+    onTaskFail:     "echo task failed: $ORCA_TASK_NAME",
+    onComplete:     "echo run complete",
+    onError:        "echo run failed",
+  },
+
+  // Codex-specific options
+  codex: {
+    model:      "gpt-5.3-codex", // override the codex model
+    multiAgent: true,             // enable multi-agent mode (see below)
+  },
+};
+\`\`\`
+
+**Top-level fields:**
+
+| Field | Description |
+|-------|-------------|
+| \`runsDir\` | Directory for run state. Default: ~/.orca/runs (or $ORCA_RUNS_DIR) |
+| \`sessionLogs\` | Directory for session logs |
+| \`hookCommands\` | Object of lifecycle hook shell commands (see Hooks) |
+| \`codex.model\` | Override the Codex model used for execution |
+| \`codex.multiAgent\` | Enable Codex multi-agent mode (see Multi-agent) |
+
+---
+
+### Hooks
+
+Hooks let you run shell commands at lifecycle events. Set them via config (\`hookCommands\`) or CLI flags (\`--on-...\`).
+
+| Hook | Description |
+|------|-------------|
+| \`onMilestone\` | Fired at each milestone checkpoint |
+| \`onTaskComplete\` | Fired when a single task completes successfully |
+| \`onTaskFail\` | Fired when a task fails |
+| \`onComplete\` | Fired when the entire run completes successfully |
+| \`onError\` | Fired on run error |
+
+Hooks are exposed as environment variables (e.g. \`$ORCA_TASK_NAME\`, \`$ORCA_MILESTONE\`) inside the shell command.
+
+\`\`\`js
+// Via config (hookCommands)
+export default {
+  hookCommands: {
+    onTaskComplete: "notify-send 'Task done' $ORCA_TASK_NAME",
+    onComplete:     "osascript -e 'display notification \\"Run complete\\"\\'",
+  }
+};
+
+// Via CLI flags (orca run)
+// orca "add auth" \\
+//   --on-task-complete "echo done: $ORCA_TASK_NAME" \\
+//   --on-complete "say run complete"
+\`\`\`
+
+---
+
+### Multi-agent Mode
+
+Codex supports experimental multi-agent workflows where it can spawn parallel sub-agents for complex tasks. Off by default because enabling it modifies your global \`~/.codex/config.toml\`.
+
+> ⚠️ Enabling multi-agent mode writes \`multi_agent = true\` to your global Codex config. If you already have it enabled there, orca picks it up automatically.
+
+\`\`\`js
+// orca.config.js
+export default {
+  codex: { multiAgent: true }
+};
+\`\`\`
+
+**Run ID format**
+
+Run IDs are generated as \`<slug>-<unix-ms>-<hex4>\`:
+
+\`\`\`
+feature-auth-1766228123456-1a2b
+\`\`\`
+`;
