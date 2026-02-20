@@ -20,6 +20,7 @@ const NAV_COMMANDS: Array<{ id: string; label: string; accent?: boolean }> = [
 
 const NAV_CONFIG = [
   { id: "config-discovery", label: "Discovery" },
+  { id: "config-project-instructions", label: "Project Instructions" },
   { id: "config-options", label: "Options" },
   { id: "config-hooks", label: "Hooks" },
   { id: "config-multiagent", label: "Multi-agent" },
@@ -665,7 +666,7 @@ orca pr publish --config ./orca.config.js`}
             <CodeBlock
               code={`orca setup --openai-key sk-...
 orca setup --anthropic-key sk-ant-...
-orca setup --check     # verify current config (incl ~/.openclaw/openclaw.json env vars)
+orca setup --check     # verify current config (flag/env/openclaw/claude env files)
 orca setup --global    # write to ~/.orca/config.js
 orca setup --project   # write to ./orca.config.js`}
               lang="shell"
@@ -797,6 +798,29 @@ orca --help`}
                 ORCA_RUNS_DIR
               </code>
               .
+            </p>
+          </section>
+
+          {/* Project instruction files */}
+          <section id="config-project-instructions" style={S.section}>
+            <h2 style={S.h2}>Project Instruction Files</h2>
+            <p style={S.p}>
+              During planning, Orca automatically injects project instruction files when present:
+            </p>
+            <ol
+              style={{
+                color: "#a1a1aa",
+                lineHeight: "2",
+                paddingLeft: "20px",
+                margin: "0 0 16px",
+                fontSize: "14px",
+              }}
+            >
+              <li><code style={{ fontFamily: "ui-monospace, monospace", color: "#22d3ee" }}>AGENTS.md</code></li>
+              <li><code style={{ fontFamily: "ui-monospace, monospace", color: "#22d3ee" }}>CLAUDE.md</code></li>
+            </ol>
+            <p style={{ ...S.p, fontSize: "13px" }}>
+              Orca resolves the project root from the nearest <code style={{ fontFamily: "ui-monospace, monospace", color: "#22d3ee" }}>.git</code> and injects files in deterministic order: AGENTS first, then CLAUDE.
             </p>
           </section>
 

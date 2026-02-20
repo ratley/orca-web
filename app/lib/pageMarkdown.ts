@@ -228,7 +228,7 @@ Configure API keys and environment. Supports scoped config (global or project-le
 \`\`\`shell
 orca setup --openai-key sk-...
 orca setup --anthropic-key sk-ant-...
-orca setup --check     # verify current config (incl ~/.openclaw/openclaw.json env vars)
+orca setup --check     # verify current config (flag/env/openclaw/claude env files)
 orca setup --global    # write to ~/.orca/config.js
 orca setup --project   # write to ./orca.config.js
 \`\`\`
@@ -271,6 +271,17 @@ Orca auto-discovers config in this order — later entries override earlier ones
 3. \`--config <path>\` — explicit override
 
 Run state is stored at \`<runsDir>/<run-id>/status.json\`. Defaults to \`~/.orca/runs\` unless overridden by \`ORCA_RUNS_DIR\`.
+
+---
+
+### Project Instruction Files
+
+During planning, Orca automatically injects project instruction files when present:
+
+1. \`AGENTS.md\`
+2. \`CLAUDE.md\`
+
+Orca resolves the project root from the nearest \`.git\` and injects files in deterministic order: AGENTS first, then CLAUDE.
 
 ---
 
