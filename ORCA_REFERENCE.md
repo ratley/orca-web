@@ -1,6 +1,6 @@
 # orca
 
-Coordinated agent run harness. Breaks down a goal into a task graph, then executes it end-to-end via a persistent [Codex](https://github.com/ratley/codex-client) session with full context across tasks.
+Coordinated agent run harness. Breaks down a task into a task graph, then executes it end-to-end via a persistent [Codex](https://github.com/ratley/codex-client) session with full context across tasks.
 
 ## Install
 
@@ -8,9 +8,9 @@ Coordinated agent run harness. Breaks down a goal into a task graph, then execut
 npm install -g orcastrator
 ```
 
-## Run A Goal
+## Run A Task
 
-Start with a plain-language goal:
+Start with a plain-language task:
 
 ```bash
 orca "add auth to the app"
@@ -117,7 +117,7 @@ Global:
 
 `orca` / `orca run`:
 
-- positional: `[goal]`
+- positional: `[task]`
 - also works: `--task <text>`, `-p, --prompt <text>`
 - `--spec <path>`
 - `--plan <path>`
@@ -216,5 +216,5 @@ Run IDs are generated as:
 ```bash
 bun install
 bun test
-bun run src/cli/index.ts "your goal here"
+bun run src/cli/index.ts "your task here"
 ```

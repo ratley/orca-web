@@ -9,16 +9,16 @@ description: "Orchestrate multi-step AI coding tasks via the Orca CLI. Use when:
 
 # Orca
 
-Orca (orcastrator) is a CLI that breaks a goal into a task graph and executes it end-to-end via Codex or Claude.
+Orca (orcastrator) is a CLI that breaks a task into a task graph and executes it end-to-end via Codex or Claude.
 
 ## Install
 npm install -g orcastrator
 
-## Run a Goal
-orca "your goal here"
+## Run a Task
+orca "your task here"
 
 ## Key Commands
-orca <goal>              Start a new run
+orca <task>              Start a new run
 orca status [--last]     Check run status
 orca answer <text>       Answer a question the agent raised
 orca resume [--last]     Resume a paused run

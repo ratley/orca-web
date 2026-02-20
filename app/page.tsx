@@ -323,7 +323,7 @@ export default function Home() {
         </div>
         <div style={{ marginLeft: "auto", fontSize: "13px" }}>
           <a
-            href="https://github.com/ratley/orcastrator"
+            href="https://github.com/ratley/orca"
             target="_blank"
             rel="noopener noreferrer"
             style={{ color: "#52525b", textDecoration: "none" }}
@@ -391,7 +391,7 @@ export default function Home() {
                 maxWidth: "520px",
               }}
             >
-              Coordinated agent run harness. Breaks down a goal into a task
+              Coordinated agent run harness. Breaks down a task into a task
               graph, then executes it end-to-end via a persistent{" "}
               <a
                 href="https://github.com/ratley/codex-client"
@@ -975,7 +975,7 @@ export default {
           >
             <span>orca — orcastrator</span>
             <a
-              href="https://github.com/ratley/orcastrator"
+              href="https://github.com/ratley/orca"
               target="_blank"
               rel="noopener noreferrer"
               style={{ color: "#3f3f46", textDecoration: "none" }}
