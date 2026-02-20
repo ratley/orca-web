@@ -36,6 +36,10 @@ orca --plan ./specs/feature.md
 | \`--spec <path>\` | Path to a spec/markdown breakdown file |
 | \`--plan <path>\` | Path to a plan file (same as --spec) |
 | \`--config <path>\` | Path to an orca config file |
+| \`--codex-only\` | Force Codex executor for this run |
+| \`--claude-only\` | Force Claude executor for this run |
+| \`--codex-effort <low\|medium\|high>\` | Override Codex effort for this run |
+| \`--claude-effort <low\|medium\|high\|max>\` | Override Claude effort for this run |
 | \`--on-milestone <cmd>\` | Shell command to run on each milestone |
 | \`--on-task-complete <cmd>\` | Shell command to run when a task completes |
 | \`--on-task-fail <cmd>\` | Shell command to run when a task fails |
@@ -125,6 +129,10 @@ orca resume --run feature-auth-1766228123456-1a2b
 | \`--run <run-id>\` | Resume a specific run by ID |
 | \`--last\` | Resume the most recent run |
 | \`--config <path>\` | Path to an orca config file |
+| \`--codex-only\` | Force Codex executor for this resume |
+| \`--claude-only\` | Force Claude executor for this resume |
+| \`--codex-effort <low\|medium\|high>\` | Override Codex effort for this resume |
+| \`--claude-effort <low\|medium\|high\|max>\` | Override Claude effort for this resume |
 
 ---
 
@@ -220,7 +228,7 @@ Configure API keys and environment. Supports scoped config (global or project-le
 \`\`\`shell
 orca setup --openai-key sk-...
 orca setup --anthropic-key sk-ant-...
-orca setup --check     # verify current config
+orca setup --check     # verify current config (incl ~/.openclaw/openclaw.json env vars)
 orca setup --global    # write to ~/.orca/config.js
 orca setup --project   # write to ./orca.config.js
 \`\`\`

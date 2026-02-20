@@ -461,6 +461,10 @@ orca --plan ./specs/feature.md`}
                 <Flag flag="--spec <path>" desc="Path to a spec/markdown breakdown file" />
                 <Flag flag="--plan <path>" desc="Path to a plan file (same as --spec)" />
                 <Flag flag="--config <path>" desc="Path to an orca config file" />
+                <Flag flag="--codex-only" desc="Force Codex executor for this run" />
+                <Flag flag="--claude-only" desc="Force Claude executor for this run" />
+                <Flag flag="--codex-effort <low|medium|high>" desc="Override Codex effort for this run" />
+                <Flag flag="--claude-effort <low|medium|high|max>" desc="Override Claude effort for this run" />
                 <Flag flag="--on-milestone <cmd>" desc="Shell command to run on each milestone" />
                 <Flag flag="--on-task-complete <cmd>" desc="Shell command to run when a task completes" />
                 <Flag flag="--on-task-fail <cmd>" desc="Shell command to run when a task fails" />
@@ -552,6 +556,10 @@ orca resume --run feature-auth-1766228123456-1a2b`}
                 <Flag flag="--run <run-id>" desc="Resume a specific run by ID" />
                 <Flag flag="--last" desc="Resume the most recent run" />
                 <Flag flag="--config <path>" desc="Path to an orca config file" />
+                <Flag flag="--codex-only" desc="Force Codex executor for this resume" />
+                <Flag flag="--claude-only" desc="Force Claude executor for this resume" />
+                <Flag flag="--codex-effort <low|medium|high>" desc="Override Codex effort for this resume" />
+                <Flag flag="--claude-effort <low|medium|high|max>" desc="Override Claude effort for this resume" />
               </tbody>
             </table>
           </CmdSection>
@@ -657,7 +665,7 @@ orca pr publish --config ./orca.config.js`}
             <CodeBlock
               code={`orca setup --openai-key sk-...
 orca setup --anthropic-key sk-ant-...
-orca setup --check     # verify current config
+orca setup --check     # verify current config (incl ~/.openclaw/openclaw.json env vars)
 orca setup --global    # write to ~/.orca/config.js
 orca setup --project   # write to ./orca.config.js`}
               lang="shell"
