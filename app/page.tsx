@@ -1,5 +1,5 @@
-import { CodeBlock } from "./components/CodeBlock";
 import { AgentSkillCard } from "./components/AgentSkillCard";
+import { CodeBlock } from "./components/CodeBlock";
 import { PageCopyButton } from "./components/PageCopyButton";
 
 // ─── Nav items ───────────────────────────────────────────────────────────────
@@ -105,10 +105,7 @@ const S = {
 
 // ─── Flag row helper ─────────────────────────────────────────────────────────
 
-function Flag({
-  flag,
-  desc,
-}: { flag: string; desc: string }) {
+function Flag({ flag, desc }: { flag: string; desc: string }) {
   return (
     <tr style={S.flagRow}>
       <td style={S.flagName}>{flag}</td>
@@ -343,10 +340,7 @@ export default function Home() {
         }}
       >
         {/* Sidebar — hidden on small screens via inline media query workaround */}
-        <div
-          className="sidebar-wrapper"
-          style={{ display: "flex" }}
-        >
+        <div className="sidebar-wrapper" style={{ display: "flex" }}>
           <Sidebar />
         </div>
 
@@ -391,8 +385,8 @@ export default function Home() {
                 maxWidth: "520px",
               }}
             >
-              Coordinated agent run harness. Breaks down a task into a graph
-              of tasks, then executes it end-to-end via a persistent{" "}
+              Coordinated agent run harness. Breaks down a task into a graph of
+              tasks, then executes it end-to-end via a persistent{" "}
               <a
                 href="https://github.com/ratley/codex-client"
                 style={{ color: "#22d3ee", textDecoration: "none" }}
@@ -458,19 +452,58 @@ orca --plan ./specs/feature.md`}
             <table style={S.flagTable}>
               <tbody>
                 <Flag flag="[task]" desc="Plain-language task (positional)" />
-                <Flag flag="--task, -p, --prompt <text>" desc="Task as a named flag (alias for positional)" />
-                <Flag flag="--spec <path>" desc="Path to a spec/markdown breakdown file" />
-                <Flag flag="--plan <path>" desc="Path to a plan file (same as --spec)" />
-                <Flag flag="--config <path>" desc="Path to an orca config file" />
-                <Flag flag="--codex-only" desc="Force Codex executor for this run" />
-                <Flag flag="--claude-only" desc="Force Claude executor for this run" />
-                <Flag flag="--codex-effort <low|medium|high>" desc="Override Codex effort for this run" />
-                <Flag flag="--claude-effort <low|medium|high|max>" desc="Override Claude effort for this run" />
-                <Flag flag="--on-milestone <cmd>" desc="Shell command to run on each milestone" />
-                <Flag flag="--on-task-complete <cmd>" desc="Shell command to run when a task completes" />
-                <Flag flag="--on-task-fail <cmd>" desc="Shell command to run when a task fails" />
-                <Flag flag="--on-complete <cmd>" desc="Shell command to run when the full run completes" />
-                <Flag flag="--on-error <cmd>" desc="Shell command to run on error" />
+                <Flag
+                  flag="--task, -p, --prompt <text>"
+                  desc="Task as a named flag (alias for positional)"
+                />
+                <Flag
+                  flag="--spec <path>"
+                  desc="Path to a spec/markdown breakdown file"
+                />
+                <Flag
+                  flag="--plan <path>"
+                  desc="Path to a plan file (same as --spec)"
+                />
+                <Flag
+                  flag="--config <path>"
+                  desc="Path to an orca config file"
+                />
+                <Flag
+                  flag="--codex-only"
+                  desc="Force Codex executor for this run"
+                />
+                <Flag
+                  flag="--claude-only"
+                  desc="Force Claude executor for this run"
+                />
+                <Flag
+                  flag="--codex-effort <low|medium|high>"
+                  desc="Override Codex effort for this run"
+                />
+                <Flag
+                  flag="--claude-effort <low|medium|high|max>"
+                  desc="Override Claude effort for this run"
+                />
+                <Flag
+                  flag="--on-milestone <cmd>"
+                  desc="Shell command to run on each milestone"
+                />
+                <Flag
+                  flag="--on-task-complete <cmd>"
+                  desc="Shell command to run when a task completes"
+                />
+                <Flag
+                  flag="--on-task-fail <cmd>"
+                  desc="Shell command to run when a task fails"
+                />
+                <Flag
+                  flag="--on-complete <cmd>"
+                  desc="Shell command to run when the full run completes"
+                />
+                <Flag
+                  flag="--on-error <cmd>"
+                  desc="Shell command to run on error"
+                />
                 <Flag flag="-h, --help" desc="Show help" />
                 <Flag flag="-V, --version" desc="Show version" />
               </tbody>
@@ -491,8 +524,14 @@ orca --plan ./specs/feature.md`}
             <h3 style={S.h3}>Flags</h3>
             <table style={S.flagTable}>
               <tbody>
-                <Flag flag="--spec <path>" desc="Path to a spec/markdown breakdown file" />
-                <Flag flag="--config <path>" desc="Path to an orca config file" />
+                <Flag
+                  flag="--spec <path>"
+                  desc="Path to a spec/markdown breakdown file"
+                />
+                <Flag
+                  flag="--config <path>"
+                  desc="Path to an orca config file"
+                />
               </tbody>
             </table>
           </CmdSection>
@@ -513,9 +552,18 @@ orca status --run <id> # status of a specific run`}
             <h3 style={S.h3}>Flags</h3>
             <table style={S.flagTable}>
               <tbody>
-                <Flag flag="--run <run-id>" desc="Show status for a specific run ID" />
-                <Flag flag="--last" desc="Show status for the most recent run" />
-                <Flag flag="--config <path>" desc="Path to an orca config file" />
+                <Flag
+                  flag="--run <run-id>"
+                  desc="Show status for a specific run ID"
+                />
+                <Flag
+                  flag="--last"
+                  desc="Show status for the most recent run"
+                />
+                <Flag
+                  flag="--config <path>"
+                  desc="Path to an orca config file"
+                />
               </tbody>
             </table>
           </CmdSection>
@@ -527,14 +575,14 @@ orca status --run <id> # status of a specific run`}
             usage="orca list [flags]"
             desc="List all runs stored in the runs directory."
           >
-            <CodeBlock
-              code={`orca list`}
-              lang="shell"
-            />
+            <CodeBlock code={`orca list`} lang="shell" />
             <h3 style={S.h3}>Flags</h3>
             <table style={S.flagTable}>
               <tbody>
-                <Flag flag="--config <path>" desc="Path to an orca config file" />
+                <Flag
+                  flag="--config <path>"
+                  desc="Path to an orca config file"
+                />
               </tbody>
             </table>
           </CmdSection>
@@ -554,13 +602,31 @@ orca resume --run feature-auth-1766228123456-1a2b`}
             <h3 style={S.h3}>Flags</h3>
             <table style={S.flagTable}>
               <tbody>
-                <Flag flag="--run <run-id>" desc="Resume a specific run by ID" />
+                <Flag
+                  flag="--run <run-id>"
+                  desc="Resume a specific run by ID"
+                />
                 <Flag flag="--last" desc="Resume the most recent run" />
-                <Flag flag="--config <path>" desc="Path to an orca config file" />
-                <Flag flag="--codex-only" desc="Force Codex executor for this resume" />
-                <Flag flag="--claude-only" desc="Force Claude executor for this resume" />
-                <Flag flag="--codex-effort <low|medium|high>" desc="Override Codex effort for this resume" />
-                <Flag flag="--claude-effort <low|medium|high|max>" desc="Override Claude effort for this resume" />
+                <Flag
+                  flag="--config <path>"
+                  desc="Path to an orca config file"
+                />
+                <Flag
+                  flag="--codex-only"
+                  desc="Force Codex executor for this resume"
+                />
+                <Flag
+                  flag="--claude-only"
+                  desc="Force Claude executor for this resume"
+                />
+                <Flag
+                  flag="--codex-effort <low|medium|high>"
+                  desc="Override Codex effort for this resume"
+                />
+                <Flag
+                  flag="--claude-effort <low|medium|high|max>"
+                  desc="Override Claude effort for this resume"
+                />
               </tbody>
             </table>
           </CmdSection>
@@ -580,9 +646,15 @@ orca cancel --run feature-auth-1766228123456-1a2b`}
             <h3 style={S.h3}>Flags</h3>
             <table style={S.flagTable}>
               <tbody>
-                <Flag flag="--run <run-id>" desc="Cancel a specific run by ID" />
+                <Flag
+                  flag="--run <run-id>"
+                  desc="Cancel a specific run by ID"
+                />
                 <Flag flag="--last" desc="Cancel the most recent run" />
-                <Flag flag="--config <path>" desc="Path to an orca config file" />
+                <Flag
+                  flag="--config <path>"
+                  desc="Path to an orca config file"
+                />
               </tbody>
             </table>
           </CmdSection>
@@ -603,7 +675,10 @@ orca cancel --run feature-auth-1766228123456-1a2b`}
               <tbody>
                 <Flag flag="[run-id]" desc="Run ID (positional)" />
                 <Flag flag="[answer]" desc="Answer text (positional)" />
-                <Flag flag="--run <id>" desc="Run ID as a named flag (alias for positional)" />
+                <Flag
+                  flag="--run <id>"
+                  desc="Run ID as a named flag (alias for positional)"
+                />
               </tbody>
             </table>
           </CmdSection>
@@ -626,9 +701,15 @@ orca pr status  --run <run-id>   # check PR status`}
             <h3 style={S.h3}>Flags</h3>
             <table style={S.flagTable}>
               <tbody>
-                <Flag flag="--run <run-id>" desc="Target a specific run by ID" />
+                <Flag
+                  flag="--run <run-id>"
+                  desc="Target a specific run by ID"
+                />
                 <Flag flag="--last" desc="Target the most recent run" />
-                <Flag flag="--config <path>" desc="Path to an orca config file" />
+                <Flag
+                  flag="--config <path>"
+                  desc="Path to an orca config file"
+                />
               </tbody>
             </table>
           </CmdSection>
@@ -649,9 +730,15 @@ orca pr publish --config ./orca.config.js`}
             <h3 style={S.h3}>Flags</h3>
             <table style={S.flagTable}>
               <tbody>
-                <Flag flag="--run <run-id>" desc="Target a specific run by ID (required if not using --last)" />
+                <Flag
+                  flag="--run <run-id>"
+                  desc="Target a specific run by ID (required if not using --last)"
+                />
                 <Flag flag="--last" desc="Target the most recent run" />
-                <Flag flag="--config <path>" desc="Path to an orca config file" />
+                <Flag
+                  flag="--config <path>"
+                  desc="Path to an orca config file"
+                />
               </tbody>
             </table>
           </CmdSection>
@@ -675,10 +762,22 @@ orca setup --project   # write to ./orca.config.js`}
             <table style={S.flagTable}>
               <tbody>
                 <Flag flag="--openai-key <key>" desc="Set OpenAI API key" />
-                <Flag flag="--anthropic-key <key>" desc="Set Anthropic API key" />
-                <Flag flag="--check" desc="Verify current configuration is valid" />
-                <Flag flag="--global" desc="Write config to ~/.orca/config.js" />
-                <Flag flag="--project" desc="Write config to ./orca.config.js" />
+                <Flag
+                  flag="--anthropic-key <key>"
+                  desc="Set Anthropic API key"
+                />
+                <Flag
+                  flag="--check"
+                  desc="Verify current configuration is valid"
+                />
+                <Flag
+                  flag="--global"
+                  desc="Write config to ~/.orca/config.js"
+                />
+                <Flag
+                  flag="--project"
+                  desc="Write config to ./orca.config.js"
+                />
               </tbody>
             </table>
           </CmdSection>
@@ -781,19 +880,28 @@ orca --help`}
               <strong style={{ color: "#e2e8f0" }}>Run state</strong> is stored
               at{" "}
               <code
-                style={{ fontFamily: "ui-monospace, monospace", color: "#22d3ee" }}
+                style={{
+                  fontFamily: "ui-monospace, monospace",
+                  color: "#22d3ee",
+                }}
               >
                 {"<runsDir>/<run-id>/status.json"}
               </code>
               . Defaults to{" "}
               <code
-                style={{ fontFamily: "ui-monospace, monospace", color: "#22d3ee" }}
+                style={{
+                  fontFamily: "ui-monospace, monospace",
+                  color: "#22d3ee",
+                }}
               >
                 ~/.orca/runs
               </code>{" "}
               unless overridden by{" "}
               <code
-                style={{ fontFamily: "ui-monospace, monospace", color: "#22d3ee" }}
+                style={{
+                  fontFamily: "ui-monospace, monospace",
+                  color: "#22d3ee",
+                }}
               >
                 ORCA_RUNS_DIR
               </code>
@@ -805,7 +913,8 @@ orca --help`}
           <section id="config-project-instructions" style={S.section}>
             <h2 style={S.h2}>Project Instruction Files</h2>
             <p style={S.p}>
-              During planning, Orca automatically injects project instruction files when present:
+              During planning, Orca automatically injects project instruction
+              files when present:
             </p>
             <ol
               style={{
@@ -816,20 +925,46 @@ orca --help`}
                 fontSize: "14px",
               }}
             >
-              <li><code style={{ fontFamily: "ui-monospace, monospace", color: "#22d3ee" }}>AGENTS.md</code></li>
-              <li><code style={{ fontFamily: "ui-monospace, monospace", color: "#22d3ee" }}>CLAUDE.md</code></li>
+              <li>
+                <code
+                  style={{
+                    fontFamily: "ui-monospace, monospace",
+                    color: "#22d3ee",
+                  }}
+                >
+                  AGENTS.md
+                </code>
+              </li>
+              <li>
+                <code
+                  style={{
+                    fontFamily: "ui-monospace, monospace",
+                    color: "#22d3ee",
+                  }}
+                >
+                  CLAUDE.md
+                </code>
+              </li>
             </ol>
             <p style={{ ...S.p, fontSize: "13px" }}>
-              Orca resolves the project root from the nearest <code style={{ fontFamily: "ui-monospace, monospace", color: "#22d3ee" }}>.git</code> and injects files in deterministic order: AGENTS first, then CLAUDE.
+              Orca resolves the project root from the nearest{" "}
+              <code
+                style={{
+                  fontFamily: "ui-monospace, monospace",
+                  color: "#22d3ee",
+                }}
+              >
+                .git
+              </code>{" "}
+              and injects files in deterministic order: AGENTS first, then
+              CLAUDE.
             </p>
           </section>
 
           {/* Config options */}
           <section id="config-options" style={S.section}>
             <h2 style={S.h2}>Config Options</h2>
-            <p style={S.p}>
-              Full example — all options are optional:
-            </p>
+            <p style={S.p}>Full example — all options are optional:</p>
             <CodeBlock
               code={`// orca.config.js
 export default {
@@ -839,13 +974,17 @@ export default {
   // Directory for session logs
   sessionLogs: "./session-logs",
 
-  // Hook commands — shell strings run at lifecycle events
+  // Function hooks are primary and typed
+  hooks: {
+    onComplete: async (event, context) => {
+      console.log(event.message, context.cwd);
+    },
+  },
+
+  // Command hooks remain supported; payload arrives as stdin JSON
   hookCommands: {
-    onMilestone:    "echo milestone: $ORCA_MILESTONE",
-    onTaskComplete: "echo task done: $ORCA_TASK_NAME",
-    onTaskFail:     "echo task failed: $ORCA_TASK_NAME",
-    onComplete:     "echo run complete",
-    onError:        "echo run failed",
+    onTaskComplete: "node ./scripts/on-task-complete.mjs",
+    onError: "node ./scripts/on-error.mjs",
   },
 
   // Codex-specific options
@@ -859,11 +998,23 @@ export default {
             <h3 style={S.h3}>Top-level fields</h3>
             <table style={S.flagTable}>
               <tbody>
-                <Flag flag="runsDir" desc="Directory for run state. Default: ~/.orca/runs (or $ORCA_RUNS_DIR)" />
+                <Flag
+                  flag="runsDir"
+                  desc="Directory for run state. Default: ~/.orca/runs (or $ORCA_RUNS_DIR)"
+                />
                 <Flag flag="sessionLogs" desc="Directory for session logs" />
-                <Flag flag="hookCommands" desc="Object of lifecycle hook shell commands (see Hooks)" />
-                <Flag flag="codex.model" desc="Override the Codex model used for execution" />
-                <Flag flag="codex.multiAgent" desc="Enable Codex multi-agent mode (see Multi-agent)" />
+                <Flag
+                  flag="hookCommands"
+                  desc="Object of lifecycle hook shell commands (see Hooks)"
+                />
+                <Flag
+                  flag="codex.model"
+                  desc="Override the Codex model used for execution"
+                />
+                <Flag
+                  flag="codex.multiAgent"
+                  desc="Enable Codex multi-agent mode (see Multi-agent)"
+                />
               </tbody>
             </table>
           </section>
@@ -872,38 +1023,87 @@ export default {
           <section id="config-hooks" style={S.section}>
             <h2 style={S.h2}>Hooks</h2>
             <p style={S.p}>
-              Hooks let you run shell commands at lifecycle events. Set them via
-              config (<code style={{ fontFamily: "ui-monospace, monospace", color: "#22d3ee", fontSize: "13px" }}>hookCommands</code>) or CLI flags (<code style={{ fontFamily: "ui-monospace, monospace", color: "#22d3ee", fontSize: "13px" }}>--on-...</code>).
+              Function hooks are primary (
+              <code
+                style={{
+                  fontFamily: "ui-monospace, monospace",
+                  color: "#22d3ee",
+                  fontSize: "13px",
+                }}
+              >
+                hooks
+              </code>
+              ) and command hooks (
+              <code
+                style={{
+                  fontFamily: "ui-monospace, monospace",
+                  color: "#22d3ee",
+                  fontSize: "13px",
+                }}
+              >
+                hookCommands
+              </code>
+              ) are supported via config or CLI{" "}
+              <code
+                style={{
+                  fontFamily: "ui-monospace, monospace",
+                  color: "#22d3ee",
+                  fontSize: "13px",
+                }}
+              >
+                --on-...
+              </code>{" "}
+              flags.
             </p>
             <table style={S.flagTable}>
               <tbody>
-                <Flag flag="onMilestone" desc="Fired at each milestone checkpoint" />
-                <Flag flag="onTaskComplete" desc="Fired when a single task completes successfully" />
+                <Flag
+                  flag="onMilestone"
+                  desc="Fired at each milestone checkpoint"
+                />
+                <Flag
+                  flag="onTaskComplete"
+                  desc="Fired when a single task completes successfully"
+                />
                 <Flag flag="onTaskFail" desc="Fired when a task fails" />
-                <Flag flag="onComplete" desc="Fired when the entire run completes successfully" />
+                <Flag
+                  flag="onComplete"
+                  desc="Fired when the entire run completes successfully"
+                />
                 <Flag flag="onError" desc="Fired on run error" />
               </tbody>
             </table>
             <p style={{ ...S.p, fontSize: "13px", marginTop: "16px" }}>
-              Hooks are exposed as environment variables (e.g.{" "}
-              <code style={{ fontFamily: "ui-monospace, monospace", color: "#22d3ee" }}>$ORCA_TASK_NAME</code>
-              ,{" "}
-              <code style={{ fontFamily: "ui-monospace, monospace", color: "#22d3ee" }}>$ORCA_MILESTONE</code>
-              ) inside the shell command.
+              Command hooks receive structured event payload JSON on stdin (no{" "}
+              <code
+                style={{
+                  fontFamily: "ui-monospace, monospace",
+                  color: "#22d3ee",
+                }}
+              >
+                ORCA_*
+              </code>{" "}
+              payload env vars).
             </p>
             <CodeBlock
-              code={`# Via config (hookCommands)
+              code={`# Via config (function hooks + command hooks)
 export default {
+  hooks: {
+    onTaskComplete: async (event, context) => {
+      console.log(\`task done: \${event.taskName}\`, context.cwd);
+    },
+  },
   hookCommands: {
-    onTaskComplete: "notify-send 'Task done' $ORCA_TASK_NAME",
-    onComplete:     "osascript -e 'display notification \"Run complete\"'",
+    onTaskComplete: "node ./scripts/on-task-complete.mjs",
   }
 };
 
-# Via CLI flags (orca run)
-orca "add auth" \\
-  --on-task-complete "echo done: $ORCA_TASK_NAME" \\
-  --on-complete "say run complete"`}
+# ./scripts/on-task-complete.mjs
+# let s = ""; process.stdin.on("data", d => s += d);
+# process.stdin.on("end", () => {
+#   const payload = JSON.parse(s);
+#   console.log(\`done: \${payload.taskName}\`);
+# });`}
               lang="js"
             />
           </section>
@@ -915,13 +1115,24 @@ orca "add auth" \\
               Codex supports experimental multi-agent workflows where it can
               spawn parallel sub-agents for complex tasks. Off by default
               because enabling it modifies your global{" "}
-              <code style={{ fontFamily: "ui-monospace, monospace", color: "#22d3ee", fontSize: "13px" }}>~/.codex/config.toml</code>.
+              <code
+                style={{
+                  fontFamily: "ui-monospace, monospace",
+                  color: "#22d3ee",
+                  fontSize: "13px",
+                }}
+              >
+                ~/.codex/config.toml
+              </code>
+              .
             </p>
             <div style={S.note}>
               ⚠️ Enabling multi-agent mode writes{" "}
-              <code style={{ fontFamily: "ui-monospace, monospace" }}>multi_agent = true</code> to your{" "}
-              global Codex config. If you already have it enabled there, orca picks it up
-              automatically.
+              <code style={{ fontFamily: "ui-monospace, monospace" }}>
+                multi_agent = true
+              </code>{" "}
+              to your global Codex config. If you already have it enabled there,
+              orca picks it up automatically.
             </div>
             <CodeBlock
               code={`// orca.config.js
@@ -946,7 +1157,12 @@ export default {
             </h3>
             <p style={{ ...S.p, fontSize: "13px" }}>
               Run IDs are generated as{" "}
-              <code style={{ fontFamily: "ui-monospace, monospace", color: "#22d3ee" }}>
+              <code
+                style={{
+                  fontFamily: "ui-monospace, monospace",
+                  color: "#22d3ee",
+                }}
+              >
                 {"<slug>-<unix-ms>-<hex4>"}
               </code>
               :
@@ -957,7 +1173,10 @@ export default {
           {/* Agent Skill */}
           <section id="agent-skill" style={S.section}>
             <h2 style={S.h2}>Agent Skill</h2>
-            <p style={S.p}>Drop this SKILL.md into your agent&apos;s skills directory to give it native Orca support.</p>
+            <p style={S.p}>
+              Drop this SKILL.md into your agent&apos;s skills directory to give
+              it native Orca support.
+            </p>
             <AgentSkillCard />
           </section>
 

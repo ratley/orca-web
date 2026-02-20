@@ -12,7 +12,7 @@ npm install -g orcastrator
 
 ## Commands
 
-### orca \<task\>
+### orca <task>
 
 **Usage:** \`orca [task] [flags]\`
 
@@ -38,8 +38,8 @@ orca --plan ./specs/feature.md
 | \`--config <path>\` | Path to an orca config file |
 | \`--codex-only\` | Force Codex executor for this run |
 | \`--claude-only\` | Force Claude executor for this run |
-| \`--codex-effort <low\|medium\|high>\` | Override Codex effort for this run |
-| \`--claude-effort <low\|medium\|high\|max>\` | Override Claude effort for this run |
+| \`--codex-effort <low|medium|high>\` | Override Codex effort for this run |
+| \`--claude-effort <low|medium|high|max>\` | Override Claude effort for this run |
 | \`--on-milestone <cmd>\` | Shell command to run on each milestone |
 | \`--on-task-complete <cmd>\` | Shell command to run when a task completes |
 | \`--on-task-fail <cmd>\` | Shell command to run when a task fails |
@@ -131,8 +131,8 @@ orca resume --run feature-auth-1766228123456-1a2b
 | \`--config <path>\` | Path to an orca config file |
 | \`--codex-only\` | Force Codex executor for this resume |
 | \`--claude-only\` | Force Claude executor for this resume |
-| \`--codex-effort <low\|medium\|high>\` | Override Codex effort for this resume |
-| \`--claude-effort <low\|medium\|high\|max>\` | Override Claude effort for this resume |
+| \`--codex-effort <low|medium|high>\` | Override Codex effort for this resume |
+| \`--claude-effort <low|medium|high|max>\` | Override Claude effort for this resume |
 
 ---
 
@@ -298,13 +298,17 @@ export default {
   // Directory for session logs
   sessionLogs: "./session-logs",
 
-  // Hook commands — shell strings run at lifecycle events
+  // Function hooks are primary and typed
+  hooks: {
+    onComplete: async (event, context) => {
+      console.log(event.message, context.cwd);
+    },
+  },
+
+  // Command hooks remain supported; payload arrives as stdin JSON
   hookCommands: {
-    onMilestone:    "echo milestone: $ORCA_MILESTONE",
-    onTaskComplete: "echo task done: $ORCA_TASK_NAME",
-    onTaskFail:     "echo task failed: $ORCA_TASK_NAME",
-    onComplete:     "echo run complete",
-    onError:        "echo run failed",
+    onTaskComplete: "node ./scripts/on-task-complete.mjs",
+    onError: "node ./scripts/on-error.mjs",
   },
 
   // Codex-specific options
@@ -329,7 +333,7 @@ export default {
 
 ### Hooks
 
-Hooks let you run shell commands at lifecycle events. Set them via config (\`hookCommands\`) or CLI flags (\`--on-...\`).
+Function hooks are primary (\`hooks\`) and command hooks (\`hookCommands\`) are also supported via config or CLI \`--on-...\` flags.
 
 | Hook | Description |
 |------|-------------|
@@ -339,23 +343,28 @@ Hooks let you run shell commands at lifecycle events. Set them via config (\`hoo
 | \`onComplete\` | Fired when the entire run completes successfully |
 | \`onError\` | Fired on run error |
 
-Hooks are exposed as environment variables (e.g. \`$ORCA_TASK_NAME\`, \`$ORCA_MILESTONE\`) inside the shell command.
+Command hooks receive structured event payload JSON on stdin (no \`ORCA_*\` payload env vars).
 
 \`\`\`js
-// Via config (hookCommands)
+// Via config (function hooks + command hooks)
 export default {
+  hooks: {
+    onTaskComplete: async (event, context) => {
+      console.log("task done: " + event.taskName, context.cwd);
+    },
+  },
   hookCommands: {
-    onTaskComplete: "notify-send 'Task done' $ORCA_TASK_NAME",
-    onComplete:     "osascript -e 'display notification \\"Run complete\\"\\'",
+    onTaskComplete: "node ./scripts/on-task-complete.mjs",
   }
 };
 
-// Via CLI flags (orca run)
-// orca "add auth" \\
-//   --on-task-complete "echo done: $ORCA_TASK_NAME" \\
-//   --on-complete "say run complete"
+// ./scripts/on-task-complete.mjs
+// let s = ""; process.stdin.on("data", d => s += d);
+// process.stdin.on("end", () => {
+//   const payload = JSON.parse(s);
+//   console.log("done: " + payload.taskName);
+// });
 \`\`\`
-
 ---
 
 ### Multi-agent Mode

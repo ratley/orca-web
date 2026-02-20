@@ -48,7 +48,9 @@ body {
 code,
 kbd,
 pre {
-  font-family: ui-monospace, "Cascadia Code", "Fira Code", Menlo, Monaco, "Courier New", monospace;
+  font-family:
+    ui-monospace, "Cascadia Code", "Fira Code", Menlo, Monaco, "Courier New",
+    monospace;
 }
 
 ::-webkit-scrollbar {
