@@ -488,8 +488,6 @@ orca --plan ./specs/feature.md`}
               <tbody>
                 <Flag flag="--spec <path>" desc="Path to a spec/markdown breakdown file" />
                 <Flag flag="--config <path>" desc="Path to an orca config file" />
-                <Flag flag="--on-milestone <cmd>" desc="Shell command to run on each milestone" />
-                <Flag flag="--on-error <cmd>" desc="Shell command to run on error" />
               </tbody>
             </table>
           </CmdSection>
@@ -499,11 +497,11 @@ orca --plan ./specs/feature.md`}
             id="cmd-status"
             title="orca status"
             usage="orca status [flags]"
-            desc="Show the status of a run — tasks completed, in-progress, pending, or failed."
+            desc="Without --run or --last, lists all runs as a summary table. With --run or --last, shows detailed status for a specific run — tasks completed, in-progress, pending, or failed."
           >
             <CodeBlock
-              code={`orca status            # status of most recent run
-orca status --last     # same as above
+              code={`orca status            # list all runs (summary table)
+orca status --last     # status of the most recent run
 orca status --run <id> # status of a specific run`}
               lang="shell"
             />
@@ -634,12 +632,16 @@ orca pr status  --run <run-id>   # check PR status`}
             desc="Finalize the PR workflow — typically run after all tasks complete."
           >
             <CodeBlock
-              code={`orca pr publish --config ./orca.config.js`}
+              code={`orca pr publish --run <run-id>
+orca pr publish --last
+orca pr publish --config ./orca.config.js`}
               lang="shell"
             />
             <h3 style={S.h3}>Flags</h3>
             <table style={S.flagTable}>
               <tbody>
+                <Flag flag="--run <run-id>" desc="Target a specific run by ID (required if not using --last)" />
+                <Flag flag="--last" desc="Target the most recent run" />
                 <Flag flag="--config <path>" desc="Path to an orca config file" />
               </tbody>
             </table>
