@@ -4,7 +4,7 @@ import { AgentSkillCard } from "./components/AgentSkillCard";
 // ─── Nav items ───────────────────────────────────────────────────────────────
 
 const NAV_COMMANDS = [
-  { id: "cmd-run", label: "orca <goal>" },
+  { id: "cmd-run", label: "orca <task>" },
   { id: "cmd-plan", label: "orca plan" },
   { id: "cmd-status", label: "orca status" },
   { id: "cmd-list", label: "orca list" },
@@ -12,7 +12,6 @@ const NAV_COMMANDS = [
   { id: "cmd-cancel", label: "orca cancel" },
   { id: "cmd-answer", label: "orca answer" },
   { id: "cmd-pr", label: "orca pr" },
-  { id: "cmd-pr-publish", label: "orca pr publish" },
   { id: "cmd-setup", label: "orca setup" },
   { id: "cmd-help", label: "orca help" },
 ];
@@ -432,15 +431,15 @@ export default function Home() {
             Commands
           </div>
 
-          {/* orca <goal> */}
+          {/* orca <task> */}
           <CmdSection
             id="cmd-run"
-            title="orca <goal>"
-            usage="orca [goal] [flags]"
-            desc="Start a new run from a plain-language goal. Orca plans tasks, executes them in sequence, and persists run state. You can also provide a spec or plan file instead of a goal string."
+            title="orca <task>"
+            usage="orca [task] [flags]"
+            desc="Start a new run from a plain-language task. Orca plans tasks, executes them in sequence, and persists run state. You can also provide a spec or plan file instead of a task string."
           >
             <CodeBlock
-              code={`# Run a goal
+              code={`# Run a task
 orca "add auth to the app"
 
 # Run with a spec or plan file
@@ -451,8 +450,8 @@ orca --plan ./specs/feature.md`}
             <h3 style={S.h3}>Flags</h3>
             <table style={S.flagTable}>
               <tbody>
-                <Flag flag="[goal]" desc="Plain-language goal (positional)" />
-                <Flag flag="--task, -p, --prompt <text>" desc="Goal as a named flag (alias for positional)" />
+                <Flag flag="[task]" desc="Plain-language task (positional)" />
+                <Flag flag="--task, -p, --prompt <text>" desc="Task as a named flag (alias for positional)" />
                 <Flag flag="--spec <path>" desc="Path to a spec/markdown breakdown file" />
                 <Flag flag="--plan <path>" desc="Path to a plan file (same as --spec)" />
                 <Flag flag="--config <path>" desc="Path to an orca config file" />
