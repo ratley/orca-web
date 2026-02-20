@@ -1,4 +1,5 @@
 import { CodeBlock } from "./components/CodeBlock";
+import { AgentSkillCard } from "./components/AgentSkillCard";
 
 // ─── Nav items ───────────────────────────────────────────────────────────────
 
@@ -229,6 +230,11 @@ function Sidebar() {
             {item.label}
           </a>
         ))}
+      </div>
+
+      {/* Agent Skill card — sidebar desktop */}
+      <div style={{ padding: "0 12px" }}>
+        <AgentSkillCard compact />
       </div>
     </nav>
   );
@@ -885,6 +891,11 @@ export default {
             <CodeBlock code="feature-auth-1766228123456-1a2b" />
           </section>
 
+          {/* Agent Skill card — mobile only (sidebar hidden on mobile) */}
+          <div className="mobile-agent-skill">
+            <AgentSkillCard />
+          </div>
+
           {/* Footer */}
           <footer
             style={{
@@ -912,9 +923,11 @@ export default {
 
       {/* Sidebar hide on mobile */}
       <style>{`
+        .mobile-agent-skill { display: none; }
         @media (max-width: 640px) {
           .sidebar-wrapper { display: none !important; }
           main { padding: 0 20px !important; }
+          .mobile-agent-skill { display: block; }
         }
         nav a:hover { color: #22d3ee !important; }
         header a:hover { color: #e2e8f0 !important; }
