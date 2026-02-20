@@ -79,13 +79,17 @@ export default {
   runsDir: "./.orca/runs",
   sessionLogs: "./session-logs",
   hookCommands: {
-    onTaskComplete: "echo task done: $ORCA_TASK_NAME",
+    // command hooks receive JSON payload on stdin (no ORCA_* hook env vars)
+    onTaskComplete: "node -e 'let s="";process.stdin.on("data",d=>s+=d);process.stdin.on("end",()=>{const p=JSON.parse(s);console.log(`task done: ${p.taskId}`);})'",
     onComplete: "echo run complete",
     onError: "echo run failed"
   },
   codex: {
     model: "gpt-5.3-codex",       // override the codex model
     multiAgent: true,              // enable codex multi-agent (see below)
+    perCwdExtraUserRoots: [        // optional app-server skill roots per cwd (skills/list)
+      { cwd: process.cwd(), extraUserRoots: ["/tmp/shared-skills"] }
+    ]
   }
 };
 ```
@@ -191,6 +195,8 @@ Hook names:
 - `onError`
 
 Run hooks from CLI with `--on-...` flags or from config via `hookCommands` / `hooks`.
+
+`hookCommands` consume structured event JSON from stdin; Orca does not set legacy `ORCA_*` hook env payload fields.
 
 ### Run ID Format
 
