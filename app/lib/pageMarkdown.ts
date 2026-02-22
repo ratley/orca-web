@@ -301,7 +301,9 @@ Full example — all options are optional:
 
 \`\`\`js
 // orca.config.js
-export default {
+import { defineOrcaConfig } from "orcastrator";
+
+export default defineOrcaConfig({
   // Directory where run state is persisted
   runsDir: "./.orca/runs",
 
@@ -326,7 +328,7 @@ export default {
     model:      "gpt-5.3-codex", // override the codex model
     multiAgent: true,             // enable multi-agent mode (see below)
   },
-};
+});
 \`\`\`
 
 **Top-level fields:**
@@ -357,7 +359,9 @@ Command hooks receive structured event payload JSON on stdin (no \`ORCA_*\` payl
 
 \`\`\`js
 // Via config (function hooks + command hooks)
-export default {
+import { defineOrcaConfig } from "orcastrator";
+
+export default defineOrcaConfig({
   hooks: {
     onTaskComplete: async (event, context) => {
       console.log("task done: " + event.taskName, context.cwd);
@@ -385,9 +389,11 @@ Codex supports experimental multi-agent workflows where it can spawn parallel su
 
 \`\`\`js
 // orca.config.js
-export default {
+import { defineOrcaConfig } from "orcastrator";
+
+export default defineOrcaConfig({
   codex: { multiAgent: true }
-};
+});
 \`\`\`
 
 **Run ID format**
