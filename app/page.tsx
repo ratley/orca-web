@@ -388,7 +388,7 @@ export default function Home() {
               Coordinated agent run harness. Breaks down a task into a graph of
               tasks, then executes it end-to-end via a persistent{" "}
               <a
-                href="https://github.com/ratley/codex-client"
+                href="https://developers.openai.com/codex/app-server/"
                 style={{ color: "#22d3ee", textDecoration: "none" }}
               >
                 Codex

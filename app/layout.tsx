@@ -3,8 +3,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Orca CLI Reference",
-  description:
-    "Coordinated agent run harness. Breaks down a task into a graph of tasks and executes it end-to-end via a persistent Codex session.",
+  description: "Orca CLI reference and docs.",
 };
 
 export default function RootLayout({
