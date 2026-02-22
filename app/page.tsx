@@ -1021,7 +1021,7 @@ export default {
               >
                 hooks
               </code>
-              ) and command hooks (
+              ) and are strongly typed with `defineOrcaConfig`. Command hooks (
               <code
                 style={{
                   fontFamily: "ui-monospace, monospace",
@@ -1055,6 +1055,14 @@ export default {
                 />
                 <Flag flag="onTaskFail" desc="Fired when a task fails" />
                 <Flag
+                  flag="onInvalidPlan"
+                  desc="Fired when planner/review output is invalid"
+                />
+                <Flag
+                  flag="onFindings"
+                  desc="Fired when post-exec review reports findings"
+                />
+                <Flag
                   flag="onComplete"
                   desc="Fired when the entire run completes successfully"
                 />
@@ -1062,7 +1070,20 @@ export default {
               </tbody>
             </table>
             <p style={{ ...S.p, fontSize: "13px", marginTop: "16px" }}>
-              Command hooks receive structured event payload JSON on stdin (no{" "}
+              Hook handler context is deterministic:{" "}
+              <code
+                style={{
+                  fontFamily: "ui-monospace, monospace",
+                  color: "#22d3ee",
+                }}
+              >
+                {"{ cwd, pid, invokedAt }"}
+              </code>
+              .
+            </p>
+            <p style={{ ...S.p, fontSize: "13px" }}>
+              Command hooks receive the same structured event payload JSON on
+              stdin (no{" "}
               <code
                 style={{
                   fontFamily: "ui-monospace, monospace",
@@ -1075,16 +1096,21 @@ export default {
             </p>
             <CodeBlock
               code={`# Via config (function hooks + command hooks)
-export default {
+import { defineOrcaConfig } from "orcastrator";
+import type { HookEventMap, HookHandlerContext } from "orcastrator/types";
+
+export default defineOrcaConfig({
   hooks: {
     onTaskComplete: async (event, context) => {
+      const _typedEvent: HookEventMap["onTaskComplete"] = event;
+      const _typedContext: HookHandlerContext = context;
       console.log(\`task done: \${event.taskName}\`, context.cwd);
     },
   },
   hookCommands: {
     onTaskComplete: "node ./scripts/on-task-complete.mjs",
-  }
-};
+  },
+});
 
 # ./scripts/on-task-complete.mjs
 # let s = ""; process.stdin.on("data", d => s += d);
@@ -1092,7 +1118,7 @@ export default {
 #   const payload = JSON.parse(s);
 #   console.log(\`done: \${payload.taskName}\`);
 # });`}
-              lang="js"
+              lang="ts"
             />
           </section>
 

@@ -191,10 +191,22 @@ Hook names:
 - `onMilestone`
 - `onTaskComplete`
 - `onTaskFail`
+- `onInvalidPlan`
+- `onFindings`
 - `onComplete`
 - `onError`
 
 Run hooks from CLI with `--on-...` flags or from config via `hookCommands` / `hooks`.
+
+Function hooks are strongly typed when using `defineOrcaConfig`.
+
+Event field requirements:
+- `onTaskComplete` requires `taskId`, `taskName`
+- `onTaskFail` requires `taskId`, `taskName`, `error`
+- `onInvalidPlan` requires `error`
+- `onError` requires `error`
+
+Hook handler context is deterministic: `{ cwd, pid, invokedAt }`.
 
 `hookCommands` consume structured event JSON from stdin; Orca does not set legacy `ORCA_*` hook env payload fields.
 
