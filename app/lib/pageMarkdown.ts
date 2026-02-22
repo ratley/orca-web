@@ -345,40 +345,47 @@ export default defineOrcaConfig({
 
 ### Hooks
 
-Function hooks are primary (\`hooks\`) and command hooks (\`hookCommands\`) are also supported via config or CLI \`--on-...\` flags.
+Function hooks are primary (\`hooks\`) and are strongly typed when you use \`defineOrcaConfig\`. Command hooks (\`hookCommands\`) are still supported via config or CLI \`--on-...\` flags.
 
-| Hook | Description |
-|------|-------------|
-| \`onMilestone\` | Fired at each milestone checkpoint |
-| \`onTaskComplete\` | Fired when a single task completes successfully |
-| \`onTaskFail\` | Fired when a task fails |
-| \`onComplete\` | Fired when the entire run completes successfully |
-| \`onError\` | Fired on run error |
+| Hook | Description | Extra required event fields |
+|------|-------------|-----------------------------|
+| \`onMilestone\` | Fired at each milestone checkpoint | none |
+| \`onTaskComplete\` | Fired when a single task completes successfully | \`taskId\`, \`taskName\` |
+| \`onTaskFail\` | Fired when a task fails | \`taskId\`, \`taskName\`, \`error\` |
+| \`onInvalidPlan\` | Fired when planner/review output is invalid | \`error\` |
+| \`onFindings\` | Fired when post-exec review reports findings | none |
+| \`onComplete\` | Fired when the entire run completes successfully | none |
+| \`onError\` | Fired on run error | \`error\` |
 
-Command hooks receive structured event payload JSON on stdin (no \`ORCA_*\` payload env vars).
+Hook handler context is deterministic: \`{ cwd, pid, invokedAt }\`.
 
-\`\`\`js
-// Via config (function hooks + command hooks)
+Command hooks receive the same structured event payload JSON on stdin (no \`ORCA_*\` payload env vars). That line stays because command hooks are still supported.
+
+\`\`\`ts
 import { defineOrcaConfig } from "orcastrator";
+import type { HookEventMap, HookHandlerContext } from "orcastrator/types";
 
 export default defineOrcaConfig({
   hooks: {
     onTaskComplete: async (event, context) => {
-      console.log("task done: " + event.taskName, context.cwd);
+      const _typedEvent: HookEventMap["onTaskComplete"] = event;
+      const _typedContext: HookHandlerContext = context;
+      console.log("task done:", event.taskName, context.cwd);
     },
   },
   hookCommands: {
     onTaskComplete: "node ./scripts/on-task-complete.mjs",
-  }
-};
+  },
+});
 
 // ./scripts/on-task-complete.mjs
 // let s = ""; process.stdin.on("data", d => s += d);
 // process.stdin.on("end", () => {
 //   const payload = JSON.parse(s);
-//   console.log("done: " + payload.taskName);
+//   console.log("done:", payload.taskName);
 // });
 \`\`\`
+
 ---
 
 ### Multi-agent Mode
