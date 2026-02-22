@@ -1,6 +1,6 @@
 # orca
 
-Coordinated agent run harness. Breaks down a task into a graph of tasks, then executes it end-to-end via a persistent [Codex](https://github.com/ratley/codex-client) session with full context across tasks.
+Coordinated agent run harness.
 
 ## Install
 
@@ -8,42 +8,16 @@ Coordinated agent run harness. Breaks down a task into a graph of tasks, then ex
 npm install -g orcastrator
 ```
 
-## Run A Task
-
-Start with a plain-language task:
-
-```bash
-orca "add auth to the app"
-```
-
-Orca will create a run, plan tasks, execute them, and persist run state.
-
-## Spec And Plan Files
-
-Use a spec/plan markdown file when you already have a written breakdown:
-
-```bash
-orca --spec ./specs/feature.md
-orca --plan ./specs/feature.md
-```
-
-If you only want planning (no execution):
-
-```bash
-orca plan --spec ./specs/feature.md
-```
-
 ## Run Management
 
 ```bash
-orca status
-orca status --last
-orca status --run <run-id>
-
-orca list
+orca status                  # list all runs (default)
+orca status --last           # most recent run details
+orca status --run <run-id>   # specific run details
 
 orca resume --last
 orca resume --run <run-id>
+orca resume --run <run-id> --codex-only --codex-effort high
 
 orca cancel --last
 orca cancel --run <run-id>
@@ -53,141 +27,76 @@ orca answer <run-id> "yes, use migration A"
 
 ## PR Workflow
 
+Canonical public flow:
+
 ```bash
-orca pr
 orca pr draft --run <run-id>
 orca pr create --run <run-id>
 orca pr publish --run <run-id>
 orca pr status --run <run-id>
-
-orca pr-finalize --config ./orca.config.js
 ```
 
-## Config
+`orca pr publish` run selection behavior:
+- TTY: if `--run`/`--last` omitted, interactive picker is shown.
+- non-TTY: pass `--run` or `--last`.
 
-Orca auto-discovers config in this order:
+## Config Discovery / Precedence
 
+Load order (later overrides earlier):
 1. `~/.orca/config.js`
-2. `./orca.config.js` or `./orca.config.ts`
-3. `--config <path>` (if passed)
+2. project config: `./orca.config.ts` then `./orca.config.js` (`.ts` takes precedence when both exist)
+3. `--config <path>`
 
-Later entries override earlier ones.
-
-```js
-// orca.config.js
-export default {
-  runsDir: "./.orca/runs",
-  sessionLogs: "./session-logs",
-  hookCommands: {
-    // command hooks receive JSON payload on stdin (no ORCA_* hook env vars)
-    onTaskComplete: "node -e 'let s="";process.stdin.on("data",d=>s+=d);process.stdin.on("end",()=>{const p=JSON.parse(s);console.log(`task done: ${p.taskId}`);})'",
-    onComplete: "echo run complete",
-    onError: "echo run failed"
-  },
-  codex: {
-    model: "gpt-5.3-codex",       // override the codex model
-    multiAgent: true,              // enable codex multi-agent (see below)
-    perCwdExtraUserRoots: [        // optional app-server skill roots per cwd (skills/list)
-      { cwd: process.cwd(), extraUserRoots: ["/tmp/shared-skills"] }
-    ]
-  }
-};
-```
-
-### Multi-agent mode
-
-Codex supports experimental [multi-agent workflows](https://developers.openai.com/codex/multi-agent) where it can spawn parallel sub-agents for complex tasks.
-
-To enable it in orca, set `codex.multiAgent: true` in your config:
-
-```js
-export default {
-  codex: { multiAgent: true }
-};
-```
-
-When enabled, orca adds `multi_agent = true` to your global `~/.codex/config.toml`. If you already have multi-agent enabled in your Codex config, it will work automatically without setting anything in orca.
-
-> **Note:** Multi-agent is off by default because enabling it modifies your global Codex configuration. It is currently an experimental Codex feature.
-
-## Reference
-
-### Flags
-
-Global:
-
-- `-h, --help`
-- `-V, --version`
+## CLI Flags Reference
 
 `orca` / `orca run`:
-
-- positional: `[task]`
-- also works: `--task <text>`, `-p, --prompt <text>`
-- `--spec <path>`
-- `--plan <path>`
-- `--config <path>`
+- `[task]`, `--task <text>`, `-p, --prompt <text>`
+- `--spec <path>`, `--plan <path>`, `--config <path>`
+- `--codex-only`, `--claude-only`
+- `--codex-effort <low|medium|high>`
+- `--claude-effort <low|medium|high|max>`
 - `--on-milestone <cmd>`
 - `--on-task-complete <cmd>`
 - `--on-task-fail <cmd>`
+- `--on-invalid-plan <cmd>`
+- `--on-findings <cmd>`
 - `--on-complete <cmd>`
 - `--on-error <cmd>`
 
 `orca plan`:
-
 - `--spec <path>`
 - `--config <path>`
 - `--on-milestone <cmd>`
 - `--on-error <cmd>`
 
-`orca status`:
+`orca status`: `--run <run-id>`, `--last`, `--config <path>`
 
-- `--run <run-id>`
-- `--last`
-- `--config <path>`
+`orca resume`: `--run <run-id>`, `--last`, `--config <path>`, `--codex-only`, `--claude-only`, `--codex-effort <low|medium|high>`, `--claude-effort <low|medium|high|max>`
 
-`orca resume`:
+`orca cancel`: `--run <run-id>`, `--last`, `--config <path>`
 
-- `--run <run-id>`
-- `--last`
-- `--config <path>`
+`orca answer`: `[run-id] [answer]`, `--run <id>`
 
-`orca cancel`:
+`orca list`: `--config <path>`
 
-- `--run <run-id>`
-- `--last`
-- `--config <path>`
-
-`orca answer`:
-
-- positional: `[run-id] [answer]`
-- `--run <id>`
-
-`orca list`:
-
-- `--config <path>`
-
-`orca pr draft|create|publish|status`:
-
-- `--run <run-id>`
-- `--last`
-- `--config <path>`
-
-`orca pr-finalize`:
-
-- `--config <path>`
+`orca pr draft|create|publish|status`: `--run <run-id>`, `--last`, `--config <path>` (accepted for compatibility; currently unused by PR command run resolution)
 
 `orca setup`:
-
 - `--anthropic-key <key>`
 - `--openai-key <key>`
 - `--check`
 - `--global`
 - `--project`
+- `--project-config-template`
+- `--skip-project-config`
 
-### Hooks
+`orca skills`: `--config <path>`
+
+`orca help`: `[command]`
+
+## Hooks + Types
 
 Hook names:
-
 - `onMilestone`
 - `onTaskComplete`
 - `onTaskFail`
@@ -196,43 +105,32 @@ Hook names:
 - `onComplete`
 - `onError`
 
-Run hooks from CLI with `--on-...` flags or from config via `hookCommands` / `hooks`.
+Hook contract:
+- Function hooks (`hooks`) receive `(event, context)`.
+- `context` is `{ cwd, pid, invokedAt }`.
+- Command hooks (`hookCommands` and CLI `--on-*`) receive JSON via stdin.
+- No `ORCA_*` hook payload env-var framing.
+- `onError` fires for run errors and hook-dispatch/command-hook failures.
 
-Function hooks are strongly typed when using `defineOrcaConfig`.
+## OrcaConfig Reference (complete)
 
-Event field requirements:
-- `onTaskComplete` requires `taskId`, `taskName`
-- `onTaskFail` requires `taskId`, `taskName`, `error`
-- `onInvalidPlan` requires `error`
-- `onError` requires `error`
+Top-level: `executor`, `anthropicApiKey`, `openaiApiKey`, `runsDir`, `sessionLogs`, `skills`, `maxRetries`, `claude`, `codex`, `hooks`, `hookCommands`, `pr`, `review`
 
-Hook handler context is deterministic: `{ cwd, pid, invokedAt }`.
+`maxRetries` is an accepted OrcaConfig field; current planner-generated task retry limits are still fixed by task graph contracts.
 
-`hookCommands` consume structured event JSON from stdin; Orca does not set legacy `ORCA_*` hook env payload fields.
+`claude.*`: `model`, `effort`, `useV2Preview`, `maxTurnsPerTask`, `allowTextJsonFallback`
 
-### Run ID Format
+`codex.*`: `enabled`, `model`, `effort`, `command`, `timeoutMs`, `multiAgent`, `perCwdExtraUserRoots`
 
-Run IDs are generated as:
+`pr.*`: `enabled`, `requireConfirmation`
 
-- `<slug>-<unix-ms>-<hex4>`
-- Example: `feature-auth-1766228123456-1a2b`
+`review.plan.*`: `enabled`, `onInvalid`
 
-### Config File Locations
+`review.execution.*`: `enabled`, `maxCycles`, `onFindings`, `validator.auto`, `validator.commands`, `prompt`
 
-- Global: `~/.orca/config.js`
-- Project: `./orca.config.js` or `./orca.config.ts`
-- Explicit: `--config <path>`
+Deprecated compatibility aliases:
+- `review.enabled`
+- `review.onInvalid`
 
-### Run State Locations
-
-- Run status: `<runsDir>/<run-id>/status.json`
-- Answer payloads: `<runsDir>/<run-id>/answer.txt`
-- `runsDir` defaults to `~/.orca/runs` unless overridden by `ORCA_RUNS_DIR`.
-
-## Development
-
-```bash
-bun install
-bun test
-bun run src/cli/index.ts "your task here"
-```
+Validator caveat:
+- `ORCA_SKIP_VALIDATORS=1` forces `review.execution.validator.auto` off.

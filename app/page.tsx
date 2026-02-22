@@ -16,6 +16,7 @@ const NAV_COMMANDS: Array<{ id: string; label: string; accent?: boolean }> = [
   { id: "cmd-answer", label: "orca answer" },
   { id: "cmd-pr", label: "orca pr" },
   { id: "cmd-setup", label: "orca setup" },
+  { id: "cmd-skills", label: "orca skills" },
   { id: "cmd-help", label: "orca help" },
 ];
 
@@ -260,6 +261,19 @@ function Sidebar() {
         >
           Agent Skill
         </a>
+        <a
+          href="#types"
+          style={{
+            display: "block",
+            padding: "4px 16px",
+            fontSize: "13px",
+            color: "#71717a",
+            textDecoration: "none",
+            fontFamily: "ui-monospace, monospace",
+          }}
+        >
+          Types
+        </a>
       </div>
     </nav>
   );
@@ -457,6 +471,14 @@ orca --plan ./specs/feature.md`}
                   desc="Path to an orca config file"
                 />
                 <Flag
+                  flag="--on-milestone <cmd>"
+                  desc="Shell command to run on each milestone"
+                />
+                <Flag
+                  flag="--on-error <cmd>"
+                  desc="Shell command to run on error"
+                />
+                <Flag
                   flag="--codex-only"
                   desc="Force Codex executor for this run"
                 />
@@ -473,10 +495,6 @@ orca --plan ./specs/feature.md`}
                   desc="Override Claude effort for this run"
                 />
                 <Flag
-                  flag="--on-milestone <cmd>"
-                  desc="Shell command to run on each milestone"
-                />
-                <Flag
                   flag="--on-task-complete <cmd>"
                   desc="Shell command to run when a task completes"
                 />
@@ -485,12 +503,16 @@ orca --plan ./specs/feature.md`}
                   desc="Shell command to run when a task fails"
                 />
                 <Flag
-                  flag="--on-complete <cmd>"
-                  desc="Shell command to run when the full run completes"
+                  flag="--on-invalid-plan <cmd>"
+                  desc="Shell command to run when planner/review output is invalid"
                 />
                 <Flag
-                  flag="--on-error <cmd>"
-                  desc="Shell command to run on error"
+                  flag="--on-findings <cmd>"
+                  desc="Shell command to run when post-execution review reports findings"
+                />
+                <Flag
+                  flag="--on-complete <cmd>"
+                  desc="Shell command to run when the full run completes"
                 />
                 <Flag flag="-h, --help" desc="Show help" />
                 <Flag flag="-V, --version" desc="Show version" />
@@ -519,6 +541,14 @@ orca --plan ./specs/feature.md`}
                 <Flag
                   flag="--config <path>"
                   desc="Path to an orca config file"
+                />
+                <Flag
+                  flag="--on-milestone <cmd>"
+                  desc="Shell command to run on each milestone"
+                />
+                <Flag
+                  flag="--on-error <cmd>"
+                  desc="Shell command to run on error"
                 />
               </tbody>
             </table>
@@ -696,7 +726,7 @@ orca pr status  --run <run-id>   # check PR status`}
                 <Flag flag="--last" desc="Target the most recent run" />
                 <Flag
                   flag="--config <path>"
-                  desc="Path to an orca config file"
+                  desc="Accepted for compatibility; currently unused by PR command run resolution"
                 />
               </tbody>
             </table>
@@ -707,12 +737,15 @@ orca pr status  --run <run-id>   # check PR status`}
             id="cmd-pr-publish"
             title="orca pr publish"
             usage="orca pr publish [flags]"
-            desc="Finalize the PR workflow — typically run after all tasks complete."
+            desc="Publish a draft PR for a run (ready for review). In TTY mode, run selection is interactive when --run/--last is omitted; non-TTY requires --run or --last."
           >
             <CodeBlock
               code={`orca pr publish --run <run-id>
 orca pr publish --last
-orca pr publish --config ./orca.config.js`}
+orca pr publish --config ./orca.config.js   # accepted, currently unused by PR command resolution
+
+# Non-TTY requires explicit selection
+orca pr publish --last`}
               lang="shell"
             />
             <h3 style={S.h3}>Flags</h3>
@@ -720,12 +753,12 @@ orca pr publish --config ./orca.config.js`}
               <tbody>
                 <Flag
                   flag="--run <run-id>"
-                  desc="Target a specific run by ID (required if not using --last)"
+                  desc="Target a specific run by ID"
                 />
                 <Flag flag="--last" desc="Target the most recent run" />
                 <Flag
                   flag="--config <path>"
-                  desc="Path to an orca config file"
+                  desc="Accepted for compatibility; currently unused by PR command run resolution"
                 />
               </tbody>
             </table>
@@ -765,6 +798,37 @@ orca setup --project   # write to ./orca.config.js`}
                 <Flag
                   flag="--project"
                   desc="Write config to ./orca.config.js"
+                />
+                <Flag
+                  flag="--project-config-template"
+                  desc="Write a typed project hook template to ./orca.config.ts"
+                />
+                <Flag
+                  flag="--skip-project-config"
+                  desc="Do not prompt to generate a project config template"
+                />
+              </tbody>
+            </table>
+          </CmdSection>
+
+          {/* orca skills */}
+          <CmdSection
+            id="cmd-skills"
+            title="orca skills"
+            usage="orca skills [flags]"
+            desc="List loaded skills and their sources."
+          >
+            <CodeBlock
+              code={`orca skills
+orca skills --config ./orca.config.js`}
+              lang="shell"
+            />
+            <h3 style={S.h3}>Flags</h3>
+            <table style={S.flagTable}>
+              <tbody>
+                <Flag
+                  flag="--config <path>"
+                  desc="Path to an orca config file"
                 />
               </tbody>
             </table>
@@ -839,16 +903,16 @@ orca --help`}
                     color: "#22d3ee",
                   }}
                 >
-                  ./orca.config.js
+                  ./orca.config.ts
                 </code>{" "}
-                or{" "}
+                (takes precedence when both exist) or{" "}
                 <code
                   style={{
                     fontFamily: "ui-monospace, monospace",
                     color: "#22d3ee",
                   }}
                 >
-                  ./orca.config.ts
+                  ./orca.config.js
                 </code>{" "}
                 — project config
               </li>
@@ -894,6 +958,27 @@ orca --help`}
                 ORCA_RUNS_DIR
               </code>
               .
+            </p>
+            <p style={{ ...S.p, fontSize: "13px" }}>
+              Validator caveat:{" "}
+              <code
+                style={{
+                  fontFamily: "ui-monospace, monospace",
+                  color: "#22d3ee",
+                }}
+              >
+                ORCA_SKIP_VALIDATORS=1
+              </code>{" "}
+              forces{" "}
+              <code
+                style={{
+                  fontFamily: "ui-monospace, monospace",
+                  color: "#22d3ee",
+                }}
+              >
+                review.execution.validator.auto
+              </code>{" "}
+              off at runtime.
             </p>
           </section>
 
@@ -954,54 +1039,74 @@ orca --help`}
             <h2 style={S.h2}>Config Options</h2>
             <p style={S.p}>Full example — all options are optional:</p>
             <CodeBlock
-              code={`// orca.config.js
-export default {
-  // Directory where run state is persisted
+              code={`// orca.config.ts
+import { defineOrcaConfig } from "orcastrator";
+
+export default defineOrcaConfig({
+  executor: "codex",
+  anthropicApiKey: process.env.ANTHROPIC_API_KEY,
+  openaiApiKey: process.env.OPENAI_API_KEY,
   runsDir: "./.orca/runs",
-
-  // Directory for session logs
   sessionLogs: "./session-logs",
-
-  // Function hooks are primary and typed
-  hooks: {
-    onComplete: async (event, context) => {
-      console.log(event.message, context.cwd);
+  skills: ["./.orca/skills"],
+  maxRetries: 1,
+  claude: {
+    model: "claude-sonnet-4-20250514",
+    effort: "medium",
+    useV2Preview: true,
+    maxTurnsPerTask: 12,
+    allowTextJsonFallback: false,
+  },
+  codex: {
+    enabled: true,
+    model: "gpt-5.3-codex",
+    effort: "medium",
+    command: "codex",
+    timeoutMs: 300000,
+    multiAgent: false,
+  },
+  pr: { enabled: true, requireConfirmation: true },
+  review: {
+    // Deprecated aliases: review.enabled / review.onInvalid
+    plan: { enabled: true, onInvalid: "fail" },
+    execution: {
+      enabled: true,
+      maxCycles: 2,
+      onFindings: "auto_fix",
+      validator: { auto: true },
     },
   },
-
-  // Command hooks remain supported; payload arrives as stdin JSON
-  hookCommands: {
-    onTaskComplete: "node ./scripts/on-task-complete.mjs",
-    onError: "node ./scripts/on-error.mjs",
-  },
-
-  // Codex-specific options
-  codex: {
-    model:      "gpt-5.3-codex", // override the codex model
-    multiAgent: true,             // enable multi-agent mode (see below)
-  },
-};`}
-              lang="js"
+});`}
+              lang="ts"
             />
-            <h3 style={S.h3}>Top-level fields</h3>
+            <h3 style={S.h3}>Field reference</h3>
             <table style={S.flagTable}>
               <tbody>
                 <Flag
-                  flag="runsDir"
-                  desc="Directory for run state. Default: ~/.orca/runs (or $ORCA_RUNS_DIR)"
-                />
-                <Flag flag="sessionLogs" desc="Directory for session logs" />
-                <Flag
-                  flag="hookCommands"
-                  desc="Object of lifecycle hook shell commands (see Hooks)"
+                  flag="Top-level"
+                  desc="executor, anthropicApiKey, openaiApiKey, runsDir, sessionLogs, skills, maxRetries, hooks, hookCommands, pr, review, claude, codex"
                 />
                 <Flag
-                  flag="codex.model"
-                  desc="Override the Codex model used for execution"
+                  flag="maxRetries"
+                  desc="Accepted OrcaConfig field; current planner-generated task retry limits remain fixed by task graph contracts"
                 />
                 <Flag
-                  flag="codex.multiAgent"
-                  desc="Enable Codex multi-agent mode (see Multi-agent)"
+                  flag="claude.*"
+                  desc="model, effort, useV2Preview, maxTurnsPerTask, allowTextJsonFallback"
+                />
+                <Flag
+                  flag="codex.*"
+                  desc="enabled, model, effort, command, timeoutMs, multiAgent, perCwdExtraUserRoots"
+                />
+                <Flag flag="pr.*" desc="enabled, requireConfirmation" />
+                <Flag flag="review.plan.*" desc="enabled, onInvalid" />
+                <Flag
+                  flag="review.execution.*"
+                  desc="enabled, maxCycles, onFindings, validator.auto, validator.commands, prompt"
+                />
+                <Flag
+                  flag="Deprecated aliases"
+                  desc="review.enabled, review.onInvalid"
                 />
               </tbody>
             </table>
@@ -1066,7 +1171,10 @@ export default {
                   flag="onComplete"
                   desc="Fired when the entire run completes successfully"
                 />
-                <Flag flag="onError" desc="Fired on run error" />
+                <Flag
+                  flag="onError"
+                  desc="Fired on run failure and on hook-dispatch/command-hook failures"
+                />
               </tbody>
             </table>
             <p style={{ ...S.p, fontSize: "13px", marginTop: "16px" }}>
@@ -1082,17 +1190,48 @@ export default {
               .
             </p>
             <p style={{ ...S.p, fontSize: "13px" }}>
-              Command hooks receive the same structured event payload JSON on
-              stdin (no{" "}
+              Command hooks receive structured event payload JSON on stdin.
+            </p>
+            <h3 style={S.h3}>Interactive hook flow</h3>
+            <p style={{ ...S.p, fontSize: "13px" }}>
+              If a run needs operator input, Orca moves the run into
               <code
                 style={{
                   fontFamily: "ui-monospace, monospace",
                   color: "#22d3ee",
                 }}
               >
-                ORCA_*
-              </code>{" "}
-              payload env vars).
+                {" waiting_for_answer "}
+              </code>
+              and pauses execution until an answer is submitted.
+            </p>
+            <CodeBlock
+              code={`# 1) Inspect the blocked run
+orca status --run <run-id>
+
+# 2) Submit the answer
+orca answer <run-id> "yes, use migration A"
+
+# 3) Continue execution
+orca resume --run <run-id>`}
+              lang="shell"
+            />
+            <p
+              style={{
+                ...S.p,
+                fontSize: "13px",
+                color: "#71717a",
+                marginTop: "8px",
+              }}
+            >
+              See{" "}
+              <a
+                href="#types"
+                style={{ color: "#93c5fd", textDecoration: "none" }}
+              >
+                Types ↓
+              </a>{" "}
+              for full hook event and context contracts.
             </p>
             <CodeBlock
               code={`# Via config (function hooks + command hooks)
@@ -1192,6 +1331,88 @@ export default {
               it native Orca support.
             </p>
             <AgentSkillCard />
+          </section>
+
+          {/* Types */}
+          <section id="types" style={S.section}>
+            <h2 style={S.h2}>Types</h2>
+            <p style={S.p}>
+              Full TypeScript contracts for hook events and context. Import
+              directly from{" "}
+              <a
+                href="https://github.com/ratley/orca/blob/master/src/types/index.ts"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  fontFamily: "ui-monospace, monospace",
+                  color: "#22d3ee",
+                  textDecoration: "none",
+                }}
+              >
+                orcastrator/types ↗
+              </a>
+              .
+            </p>
+            <h3 style={{ ...S.h3, marginTop: "24px" }}>HookHandlerContext</h3>
+            <p style={S.p}>
+              Passed as the second argument to every function hook.
+            </p>
+            <CodeBlock
+              code={`type HookHandlerContext = {
+  cwd: string;       // working directory of the orca run
+  pid: number;       // process id
+  invokedAt: string; // ISO timestamp of invocation
+};`}
+              lang="ts"
+            />
+            <h3 style={{ ...S.h3, marginTop: "24px" }}>BaseHookEvent</h3>
+            <p style={S.p}>
+              Base shape shared by all hook events. Hook-specific events extend
+              this.
+            </p>
+            <CodeBlock
+              code={`type BaseHookEvent = {
+  runId: RunId;
+  message: string;
+  timestamp: string;
+  taskId?: string;
+  taskName?: string;
+  error?: string;
+  metadata?: Record<string, string | number | boolean | null>;
+};`}
+              lang="ts"
+            />
+            <h3 style={{ ...S.h3, marginTop: "24px" }}>HookEventMap</h3>
+            <p style={S.p}>Maps each hook name to its full event type.</p>
+            <CodeBlock
+              code={`type HookEventMap = {
+  onMilestone:    BaseHookEvent & { hook: "onMilestone" };
+  onTaskComplete: BaseHookEvent & { hook: "onTaskComplete"; taskId: string; taskName: string };
+  onTaskFail:     BaseHookEvent & { hook: "onTaskFail"; taskId: string; taskName: string; error: string };
+  onInvalidPlan:  BaseHookEvent & { hook: "onInvalidPlan"; error: string };
+  onFindings:     BaseHookEvent & { hook: "onFindings" };
+  onComplete:     BaseHookEvent & { hook: "onComplete" };
+  onError:        BaseHookEvent & { hook: "onError"; error: string };
+};`}
+              lang="ts"
+            />
+            <h3 style={{ ...S.h3, marginTop: "24px" }}>
+              Example payload (JSON)
+            </h3>
+            <p style={S.p}>
+              Shape of the JSON written to stdin for command hooks.
+            </p>
+            <CodeBlock
+              code={`{
+  "hook": "onTaskComplete",
+  "runId": "feature-auth-1766228123456-1a2b",
+  "message": "Task completed",
+  "timestamp": "2026-02-22T12:00:00.000Z",
+  "taskId": "task-2",
+  "taskName": "Apply migration"
+}`}
+              lang="json"
+            />
           </section>
 
           {/* Footer */}

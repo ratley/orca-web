@@ -1,413 +1,137 @@
 export const PAGE_MARKDOWN = `# orca
 
-Coordinated agent run harness. Breaks down a task into a graph of tasks, then executes it end-to-end via a persistent [Codex](https://developers.openai.com/codex/app-server/) session with full context across tasks.
+Coordinated agent run harness.
 
 ## Install
 
 \`\`\`shell
-# npm
 npm install -g orcastrator
-
-# pnpm
-pnpm add -g orcastrator
-
-# yarn
-yarn global add orcastrator
-
-# bun
-bun add -g orcastrator
 \`\`\`
 
----
-
-## Commands
-
-### orca <task>
-
-**Usage:** \`orca [task] [flags]\`
-
-Start a new run from a plain-language task. Orca plans tasks, executes them in sequence, and persists run state. You can also provide a spec or plan file instead of a task string.
+## Run Management
 
 \`\`\`shell
-# Run a task
-orca "add auth to the app"
+orca status                  # list all runs (default)
+orca status --last           # most recent run details
+orca status --run <run-id>   # specific run details
 
-# Run with a spec or plan file
-orca --spec ./specs/feature.md
-orca --plan ./specs/feature.md
-\`\`\`
-
-**Flags:**
-
-| Flag | Description |
-|------|-------------|
-| \`[task]\` | Plain-language task (positional) |
-| \`--task, -p, --prompt <text>\` | Task as a named flag (alias for positional) |
-| \`--spec <path>\` | Path to a spec/markdown breakdown file |
-| \`--plan <path>\` | Path to a plan file (same as --spec) |
-| \`--config <path>\` | Path to an orca config file |
-| \`--codex-only\` | Force Codex executor for this run |
-| \`--claude-only\` | Force Claude executor for this run |
-| \`--codex-effort <low|medium|high>\` | Override Codex effort for this run |
-| \`--claude-effort <low|medium|high|max>\` | Override Claude effort for this run |
-| \`--on-milestone <cmd>\` | Shell command to run on each milestone |
-| \`--on-task-complete <cmd>\` | Shell command to run when a task completes |
-| \`--on-task-fail <cmd>\` | Shell command to run when a task fails |
-| \`--on-complete <cmd>\` | Shell command to run when the full run completes |
-| \`--on-error <cmd>\` | Shell command to run on error |
-| \`-h, --help\` | Show help |
-| \`-V, --version\` | Show version |
-
----
-
-### orca plan
-
-**Usage:** \`orca plan [flags]\`
-
-Plan tasks without executing them. Useful for reviewing the task breakdown before committing to a run.
-
-\`\`\`shell
-orca plan --spec ./specs/feature.md
-\`\`\`
-
-**Flags:**
-
-| Flag | Description |
-|------|-------------|
-| \`--spec <path>\` | Path to a spec/markdown breakdown file |
-| \`--config <path>\` | Path to an orca config file |
-| \`--on-milestone <cmd>\` | Shell command to run on each milestone |
-| \`--on-error <cmd>\` | Shell command to run on error |
-
----
-
-### orca status
-
-**Usage:** \`orca status [flags]\`
-
-Show the status of a run — tasks completed, in-progress, pending, or failed.
-
-\`\`\`shell
-orca status            # status of most recent run
-orca status --last     # same as above
-orca status --run <id> # status of a specific run
-\`\`\`
-
-**Flags:**
-
-| Flag | Description |
-|------|-------------|
-| \`--run <run-id>\` | Show status for a specific run ID |
-| \`--last\` | Show status for the most recent run |
-| \`--config <path>\` | Path to an orca config file |
-
----
-
-### orca list
-
-**Usage:** \`orca list [flags]\`
-
-List all runs stored in the runs directory.
-
-\`\`\`shell
-orca list
-\`\`\`
-
-**Flags:**
-
-| Flag | Description |
-|------|-------------|
-| \`--config <path>\` | Path to an orca config file |
-
----
-
-### orca resume
-
-**Usage:** \`orca resume [flags]\`
-
-Resume a paused or interrupted run from where it left off.
-
-\`\`\`shell
 orca resume --last
-orca resume --run feature-auth-1766228123456-1a2b
-\`\`\`
+orca resume --run <run-id>
+orca resume --run <run-id> --codex-only --codex-effort high
 
-**Flags:**
-
-| Flag | Description |
-|------|-------------|
-| \`--run <run-id>\` | Resume a specific run by ID |
-| \`--last\` | Resume the most recent run |
-| \`--config <path>\` | Path to an orca config file |
-| \`--codex-only\` | Force Codex executor for this resume |
-| \`--claude-only\` | Force Claude executor for this resume |
-| \`--codex-effort <low|medium|high>\` | Override Codex effort for this resume |
-| \`--claude-effort <low|medium|high|max>\` | Override Claude effort for this resume |
-
----
-
-### orca cancel
-
-**Usage:** \`orca cancel [flags]\`
-
-Cancel a running or paused run.
-
-\`\`\`shell
 orca cancel --last
-orca cancel --run feature-auth-1766228123456-1a2b
+orca cancel --run <run-id>
+
+orca answer <run-id> "yes, use migration A"
 \`\`\`
 
-**Flags:**
+## PR Workflow
 
-| Flag | Description |
-|------|-------------|
-| \`--run <run-id>\` | Cancel a specific run by ID |
-| \`--last\` | Cancel the most recent run |
-| \`--config <path>\` | Path to an orca config file |
-
----
-
-### orca answer
-
-**Usage:** \`orca answer <run-id> <answer>\`
-
-Provide an answer to a run that is blocked waiting for input.
+Canonical public flow:
 
 \`\`\`shell
-orca answer feature-auth-1766228123456-1a2b "yes, use migration A"
+orca pr draft --run <run-id>
+orca pr create --run <run-id>
+orca pr publish --run <run-id>
+orca pr status --run <run-id>
 \`\`\`
 
-**Flags:**
+\`orca pr publish\` run selection behavior:
+- TTY: if \`--run\`/\`--last\` omitted, interactive picker is shown.
+- non-TTY: pass \`--run\` or \`--last\`.
 
-| Flag | Description |
-|------|-------------|
-| \`[run-id]\` | Run ID (positional) |
-| \`[answer]\` | Answer text (positional) |
-| \`--run <id>\` | Run ID as a named flag (alias for positional) |
+## Config Discovery / Precedence
 
----
+Load order (later overrides earlier):
+1. \`~/.orca/config.js\`
+2. project config: \`./orca.config.ts\` then \`./orca.config.js\` (\`.ts\` takes precedence when both exist)
+3. \`--config <path>\`
 
-### orca pr
+## CLI Flags Reference
 
-**Usage:** \`orca pr <subcommand> [flags]\`
+\`orca\` / \`orca run\`:
+- \`[task]\`, \`--task <text>\`, \`-p, --prompt <text>\`
+- \`--spec <path>\`, \`--plan <path>\`, \`--config <path>\`
+- \`--codex-only\`, \`--claude-only\`
+- \`--codex-effort <low|medium|high>\`
+- \`--claude-effort <low|medium|high|max>\`
+- \`--on-milestone <cmd>\`
+- \`--on-task-complete <cmd>\`
+- \`--on-task-fail <cmd>\`
+- \`--on-invalid-plan <cmd>\`
+- \`--on-findings <cmd>\`
+- \`--on-complete <cmd>\`
+- \`--on-error <cmd>\`
 
-Manage pull requests for a run. Subcommands: draft, create, publish, status.
+\`orca plan\`:
+- \`--spec <path>\`
+- \`--config <path>\`
+- \`--on-milestone <cmd>\`
+- \`--on-error <cmd>\`
 
-\`\`\`shell
-orca pr                          # default pr action
-orca pr draft   --run <run-id>   # open a draft PR
-orca pr create  --run <run-id>   # create a PR
-orca pr publish --run <run-id>   # publish (un-draft) the PR
-orca pr status  --run <run-id>   # check PR status
-\`\`\`
+\`orca status\`: \`--run <run-id>\`, \`--last\`, \`--config <path>\`
 
-**Flags:**
+\`orca resume\`: \`--run <run-id>\`, \`--last\`, \`--config <path>\`, \`--codex-only\`, \`--claude-only\`, \`--codex-effort <low|medium|high>\`, \`--claude-effort <low|medium|high|max>\`
 
-| Flag | Description |
-|------|-------------|
-| \`--run <run-id>\` | Target a specific run by ID |
-| \`--last\` | Target the most recent run |
-| \`--config <path>\` | Path to an orca config file |
+\`orca cancel\`: \`--run <run-id>\`, \`--last\`, \`--config <path>\`
 
----
+\`orca answer\`: \`[run-id] [answer]\`, \`--run <id>\`
 
-### orca pr publish
+\`orca list\`: \`--config <path>\`
 
-**Usage:** \`orca pr publish [flags]\`
+\`orca pr draft|create|publish|status\`: \`--run <run-id>\`, \`--last\`, \`--config <path>\` (accepted for compatibility; currently unused by PR command run resolution)
 
-Finalize the PR workflow — typically run after all tasks complete.
+\`orca setup\`:
+- \`--anthropic-key <key>\`
+- \`--openai-key <key>\`
+- \`--check\`
+- \`--global\`
+- \`--project\`
+- \`--project-config-template\`
+- \`--skip-project-config\`
 
-\`\`\`shell
-orca pr publish --config ./orca.config.js
-\`\`\`
+\`orca skills\`: \`--config <path>\`
 
-**Flags:**
+\`orca help\`: \`[command]\`
 
-| Flag | Description |
-|------|-------------|
-| \`--config <path>\` | Path to an orca config file |
+## Hooks + Types
 
----
+Hook names:
+- \`onMilestone\`
+- \`onTaskComplete\`
+- \`onTaskFail\`
+- \`onInvalidPlan\`
+- \`onFindings\`
+- \`onComplete\`
+- \`onError\`
 
-### orca setup
+Hook contract:
+- Function hooks (\`hooks\`) receive \`(event, context)\`.
+- \`context\` is \`{ cwd, pid, invokedAt }\`.
+- Command hooks (\`hookCommands\` and CLI \`--on-*\`) receive JSON via stdin.
+- No \`ORCA_*\` hook payload env-var framing.
+- \`onError\` fires for run errors and hook-dispatch/command-hook failures.
 
-**Usage:** \`orca setup [flags]\`
+## OrcaConfig Reference (complete)
 
-Configure API keys and environment. Supports scoped config (global or project-level).
+Top-level: \`executor\`, \`anthropicApiKey\`, \`openaiApiKey\`, \`runsDir\`, \`sessionLogs\`, \`skills\`, \`maxRetries\`, \`claude\`, \`codex\`, \`hooks\`, \`hookCommands\`, \`pr\`, \`review\`
 
-\`\`\`shell
-orca setup --openai-key sk-...
-orca setup --anthropic-key sk-ant-...
-orca setup --check     # verify current config (flag/env/openclaw/claude env files)
-orca setup --global    # write to ~/.orca/config.js
-orca setup --project   # write to ./orca.config.js
-\`\`\`
+\`maxRetries\` is an accepted OrcaConfig field; current planner-generated task retry limits are still fixed by task graph contracts.
 
-**Flags:**
+\`claude.*\`: \`model\`, \`effort\`, \`useV2Preview\`, \`maxTurnsPerTask\`, \`allowTextJsonFallback\`
 
-| Flag | Description |
-|------|-------------|
-| \`--openai-key <key>\` | Set OpenAI API key |
-| \`--anthropic-key <key>\` | Set Anthropic API key |
-| \`--check\` | Verify current configuration is valid |
-| \`--global\` | Write config to ~/.orca/config.js |
-| \`--project\` | Write config to ./orca.config.js |
+\`codex.*\`: \`enabled\`, \`model\`, \`effort\`, \`command\`, \`timeoutMs\`, \`multiAgent\`, \`perCwdExtraUserRoots\`
 
----
+\`pr.*\`: \`enabled\`, \`requireConfirmation\`
 
-### orca help
+\`review.plan.*\`: \`enabled\`, \`onInvalid\`
 
-**Usage:** \`orca help [command]\`
+\`review.execution.*\`: \`enabled\`, \`maxCycles\`, \`onFindings\`, \`validator.auto\`, \`validator.commands\`, \`prompt\`
 
-Show help for any command.
+Deprecated compatibility aliases:
+- \`review.enabled\`
+- \`review.onInvalid\`
 
-\`\`\`shell
-orca help
-orca help plan
-orca help pr
-orca --help
-\`\`\`
-
----
-
-## Config
-
-### Config Discovery
-
-Orca auto-discovers config in this order — later entries override earlier ones:
-
-1. \`~/.orca/config.js\` — global user config
-2. \`./orca.config.js\` or \`./orca.config.ts\` — project config
-3. \`--config <path>\` — explicit override
-
-Run state is stored at \`<runsDir>/<run-id>/status.json\`. Defaults to \`~/.orca/runs\` unless overridden by \`ORCA_RUNS_DIR\`.
-
----
-
-### Project Instruction Files
-
-During planning, Orca automatically injects project instruction files when present:
-
-1. \`AGENTS.md\`
-2. \`CLAUDE.md\`
-
-Orca resolves the project root from the nearest \`.git\` and injects files in deterministic order: AGENTS first, then CLAUDE.
-
----
-
-### Config Options
-
-Full example — all options are optional:
-
-\`\`\`js
-// orca.config.js
-import { defineOrcaConfig } from "orcastrator";
-
-export default defineOrcaConfig({
-  // Directory where run state is persisted
-  runsDir: "./.orca/runs",
-
-  // Directory for session logs
-  sessionLogs: "./session-logs",
-
-  // Function hooks are primary and typed
-  hooks: {
-    onComplete: async (event, context) => {
-      console.log(event.message, context.cwd);
-    },
-  },
-
-  // Command hooks remain supported; payload arrives as stdin JSON
-  hookCommands: {
-    onTaskComplete: "node ./scripts/on-task-complete.mjs",
-    onError: "node ./scripts/on-error.mjs",
-  },
-
-  // Codex-specific options
-  codex: {
-    model:      "gpt-5.3-codex", // override the codex model
-    multiAgent: true,             // enable multi-agent mode (see below)
-  },
-});
-\`\`\`
-
-**Top-level fields:**
-
-| Field | Description |
-|-------|-------------|
-| \`runsDir\` | Directory for run state. Default: ~/.orca/runs (or $ORCA_RUNS_DIR) |
-| \`sessionLogs\` | Directory for session logs |
-| \`hookCommands\` | Object of lifecycle hook shell commands (see Hooks) |
-| \`codex.model\` | Override the Codex model used for execution |
-| \`codex.multiAgent\` | Enable Codex multi-agent mode (see Multi-agent) |
-
----
-
-### Hooks
-
-Function hooks are primary (\`hooks\`) and are strongly typed when you use \`defineOrcaConfig\`. Command hooks (\`hookCommands\`) are still supported via config or CLI \`--on-...\` flags.
-
-| Hook | Description | Extra required event fields |
-|------|-------------|-----------------------------|
-| \`onMilestone\` | Fired at each milestone checkpoint | none |
-| \`onTaskComplete\` | Fired when a single task completes successfully | \`taskId\`, \`taskName\` |
-| \`onTaskFail\` | Fired when a task fails | \`taskId\`, \`taskName\`, \`error\` |
-| \`onInvalidPlan\` | Fired when planner/review output is invalid | \`error\` |
-| \`onFindings\` | Fired when post-exec review reports findings | none |
-| \`onComplete\` | Fired when the entire run completes successfully | none |
-| \`onError\` | Fired on run error | \`error\` |
-
-Hook handler context is deterministic: \`{ cwd, pid, invokedAt }\`.
-
-Command hooks receive the same structured event payload JSON on stdin (no \`ORCA_*\` payload env vars). That line stays because command hooks are still supported.
-
-\`\`\`ts
-import { defineOrcaConfig } from "orcastrator";
-import type { HookEventMap, HookHandlerContext } from "orcastrator/types";
-
-export default defineOrcaConfig({
-  hooks: {
-    onTaskComplete: async (event, context) => {
-      const _typedEvent: HookEventMap["onTaskComplete"] = event;
-      const _typedContext: HookHandlerContext = context;
-      console.log("task done:", event.taskName, context.cwd);
-    },
-  },
-  hookCommands: {
-    onTaskComplete: "node ./scripts/on-task-complete.mjs",
-  },
-});
-
-// ./scripts/on-task-complete.mjs
-// let s = ""; process.stdin.on("data", d => s += d);
-// process.stdin.on("end", () => {
-//   const payload = JSON.parse(s);
-//   console.log("done:", payload.taskName);
-// });
-\`\`\`
-
----
-
-### Multi-agent Mode
-
-Codex supports experimental multi-agent workflows where it can spawn parallel sub-agents for complex tasks. Off by default because enabling it modifies your global \`~/.codex/config.toml\`.
-
-> ⚠️ Enabling multi-agent mode writes \`multi_agent = true\` to your global Codex config. If you already have it enabled there, orca picks it up automatically.
-
-\`\`\`js
-// orca.config.js
-import { defineOrcaConfig } from "orcastrator";
-
-export default defineOrcaConfig({
-  codex: { multiAgent: true }
-});
-\`\`\`
-
-**Run ID format**
-
-Run IDs are generated as \`<slug>-<unix-ms>-<hex4>\`:
-
-\`\`\`
-feature-auth-1766228123456-1a2b
-\`\`\`
+Validator caveat:
+- \`ORCA_SKIP_VALIDATORS=1\` forces \`review.execution.validator.auto\` off.
 `;
