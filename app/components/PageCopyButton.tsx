@@ -27,7 +27,7 @@ export function PageCopyButton() {
       <button
         type="button"
         onClick={handleCopy}
-        title="Copy full CLI reference as Markdown"
+        title="Copy full CLI reference as Markdown (includes all install package managers)"
         style={{
           padding: "3px 10px",
           fontSize: "11px",

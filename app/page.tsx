@@ -1,5 +1,6 @@
 import { AgentSkillCard } from "./components/AgentSkillCard";
 import { CodeBlock } from "./components/CodeBlock";
+import { InstallCommandSwitcher } from "./components/InstallCommandSwitcher";
 import { PageCopyButton } from "./components/PageCopyButton";
 
 // ─── Nav items ───────────────────────────────────────────────────────────────
@@ -397,20 +398,7 @@ export default function Home() {
             </p>
 
             <div id="get-started" style={{ marginBottom: "8px" }}>
-              <span
-                style={{
-                  fontSize: "11px",
-                  color: "#52525b",
-                  fontFamily: "ui-monospace, monospace",
-                  letterSpacing: "0.06em",
-                  textTransform: "uppercase",
-                  display: "block",
-                  marginBottom: "6px",
-                }}
-              >
-                Install
-              </span>
-              <CodeBlock code="npm install -g orcastrator" lang="shell" />
+              <InstallCommandSwitcher />
             </div>
           </section>
 

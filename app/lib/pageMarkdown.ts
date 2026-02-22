@@ -5,7 +5,17 @@ Coordinated agent run harness. Breaks down a task into a graph of tasks, then ex
 ## Install
 
 \`\`\`shell
+# npm
 npm install -g orcastrator
+
+# pnpm
+pnpm add -g orcastrator
+
+# yarn
+yarn global add orcastrator
+
+# bun
+bun add -g orcastrator
 \`\`\`
 
 ---
