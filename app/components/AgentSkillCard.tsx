@@ -9,7 +9,7 @@ description: "Orchestrate multi-step AI coding tasks via the Orca CLI. Use when:
 
 # Orca
 
-Orca (orcastrator) is a CLI that breaks a task into a graph of tasks and executes it end-to-end via Codex or Claude.
+Orca (orcastrator) is a CLI that breaks a task into a graph of tasks and executes it end-to-end via Codex.
 
 ## Install
 npm install -g orcastrator
@@ -27,7 +27,7 @@ orca pr create [--last]  Open a PR for the run's branch
 
 ## Config (~/.orca/config.js or ./orca.config.js)
 export default {
-  executor: "codex",           // "codex" (default) or "claude"
+  executor: "codex",           // "codex" (default)
   sessionLogs: "./session-logs",
   hooks: {
     onComplete: async (event, context) => {

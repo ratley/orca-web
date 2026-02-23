@@ -52,9 +52,7 @@ Load order (later overrides earlier):
 \`orca\` / \`orca run\`:
 - \`[task]\`, \`--task <text>\`, \`-p, --prompt <text>\`
 - \`--spec <path>\`, \`--plan <path>\`, \`--config <path>\`
-- \`--codex-only\`, \`--claude-only\`
 - \`--codex-effort <low|medium|high>\`
-- \`--claude-effort <low|medium|high|max>\`
 - \`--on-milestone <cmd>\`
 - \`--on-task-complete <cmd>\`
 - \`--on-task-fail <cmd>\`
@@ -71,7 +69,6 @@ Load order (later overrides earlier):
 
 \`orca status\`: \`--run <run-id>\`, \`--last\`, \`--config <path>\`
 
-\`orca resume\`: \`--run <run-id>\`, \`--last\`, \`--config <path>\`, \`--codex-only\`, \`--claude-only\`, \`--codex-effort <low|medium|high>\`, \`--claude-effort <low|medium|high|max>\`
 
 \`orca cancel\`: \`--run <run-id>\`, \`--last\`, \`--config <path>\`
 
@@ -82,10 +79,7 @@ Load order (later overrides earlier):
 \`orca pr draft|create|publish|status\`: \`--run <run-id>\`, \`--last\`, \`--config <path>\` (accepted for compatibility; currently unused by PR command run resolution)
 
 \`orca setup\`:
-- auto-detect is default (no \`--auto\`, no \`--check\`)
-- \`--anthropic-key <key>\`
 - \`--openai-key <key>\`
-- \`--executor <codex|claude>\`
 - \`--ts\` (write \`.ts\` config output)
 - \`--global\`
 - \`--project\`
@@ -116,11 +110,9 @@ Hook contract:
 
 ## OrcaConfig Reference (complete)
 
-Top-level: \`executor\`, \`anthropicApiKey\`, \`openaiApiKey\`, \`runsDir\`, \`sessionLogs\`, \`skills\`, \`maxRetries\`, \`claude\`, \`codex\`, \`hooks\`, \`hookCommands\`, \`pr\`, \`review\`
 
 \`maxRetries\` is an accepted OrcaConfig field; current planner-generated task retry limits are still fixed by task graph contracts.
 
-\`claude.*\`: \`model\`, \`effort\`, \`useV2Preview\`, \`maxTurnsPerTask\`, \`allowTextJsonFallback\`
 
 \`codex.*\`: \`enabled\`, \`model\`, \`effort\`, \`command\`, \`timeoutMs\`, \`multiAgent\`, \`perCwdExtraUserRoots\`
 

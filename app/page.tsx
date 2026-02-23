@@ -483,16 +483,8 @@ orca --plan ./specs/feature.md`}
                   desc="Force Codex executor for this run"
                 />
                 <Flag
-                  flag="--claude-only"
-                  desc="Force Claude executor for this run"
-                />
-                <Flag
                   flag="--codex-effort <low|medium|high>"
                   desc="Override Codex effort for this run"
-                />
-                <Flag
-                  flag="--claude-effort <low|medium|high|max>"
-                  desc="Override Claude effort for this run"
                 />
                 <Flag
                   flag="--on-task-complete <cmd>"
@@ -634,16 +626,8 @@ orca resume --run feature-auth-1766228123456-1a2b`}
                   desc="Force Codex executor for this resume"
                 />
                 <Flag
-                  flag="--claude-only"
-                  desc="Force Claude executor for this resume"
-                />
-                <Flag
                   flag="--codex-effort <low|medium|high>"
                   desc="Override Codex effort for this resume"
-                />
-                <Flag
-                  flag="--claude-effort <low|medium|high|max>"
-                  desc="Override Claude effort for this resume"
                 />
               </tbody>
             </table>
@@ -774,7 +758,7 @@ orca pr publish --last`}
             <CodeBlock
               code={`orca setup                      # auto-detect (default)
 orca setup --openai-key sk-...
-orca setup --anthropic-key sk-ant-...
+orca setup --openai-key sk-...
 orca setup --executor codex
 orca setup --ts --global         # write to ~/.orca/config.ts
 orca setup --ts --project        # write to ./orca.config.ts`}
@@ -785,11 +769,7 @@ orca setup --ts --project        # write to ./orca.config.ts`}
               <tbody>
                 <Flag flag="--openai-key <key>" desc="Set OpenAI API key" />
                 <Flag
-                  flag="--anthropic-key <key>"
-                  desc="Set Anthropic API key"
-                />
-                <Flag
-                  flag="--executor <codex|claude>"
+                  flag="--executor <codex>"
                   desc="Explicitly set executor in written config"
                 />
                 <Flag
@@ -1022,16 +1002,6 @@ orca --help`}
                   AGENTS.md
                 </code>
               </li>
-              <li>
-                <code
-                  style={{
-                    fontFamily: "ui-monospace, monospace",
-                    color: "#22d3ee",
-                  }}
-                >
-                  CLAUDE.md
-                </code>
-              </li>
             </ol>
             <p style={{ ...S.p, fontSize: "13px" }}>
               Orca resolves the project root from the nearest{" "}
@@ -1043,8 +1013,7 @@ orca --help`}
               >
                 .git
               </code>{" "}
-              and injects files in deterministic order: AGENTS first, then
-              CLAUDE.
+              and injects AGENTS.md when present.
             </p>
           </section>
 
@@ -1058,19 +1027,12 @@ import { defineOrcaConfig } from "orcastrator";
 
 export default defineOrcaConfig({
   executor: "codex",
-  anthropicApiKey: process.env.ANTHROPIC_API_KEY,
   openaiApiKey: process.env.OPENAI_API_KEY,
   runsDir: "./.orca/runs",
   sessionLogs: "./session-logs",
   skills: ["./.orca/skills"],
   maxRetries: 1,
-  claude: {
-    model: "claude-sonnet-4-20250514",
-    effort: "medium",
-    useV2Preview: true,
-    maxTurnsPerTask: 12,
-    allowTextJsonFallback: false,
-  },
+
   codex: {
     enabled: true,
     model: "gpt-5.3-codex",
@@ -1098,15 +1060,11 @@ export default defineOrcaConfig({
               <tbody>
                 <Flag
                   flag="Top-level"
-                  desc="executor, anthropicApiKey, openaiApiKey, runsDir, sessionLogs, skills, maxRetries, hooks, hookCommands, pr, review, claude, codex"
+                  desc="executor, openaiApiKey, runsDir, sessionLogs, skills, maxRetries, hooks, hookCommands, pr, review, codex"
                 />
                 <Flag
                   flag="maxRetries"
                   desc="Accepted OrcaConfig field; current planner-generated task retry limits remain fixed by task graph contracts"
-                />
-                <Flag
-                  flag="claude.*"
-                  desc="model, effort, useV2Preview, maxTurnsPerTask, allowTextJsonFallback"
                 />
                 <Flag
                   flag="codex.*"

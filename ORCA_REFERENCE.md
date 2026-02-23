@@ -43,7 +43,7 @@ orca pr status --run <run-id>
 ## Config Discovery / Precedence
 
 Load order (later overrides earlier):
-1. `~/.orca/config.js`
+1. global config: `~/.orca/config.ts` then `~/.orca/config.js` (`.ts` takes precedence when both exist)
 2. project config: `./orca.config.ts` then `./orca.config.js` (`.ts` takes precedence when both exist)
 3. `--config <path>`
 
@@ -52,9 +52,8 @@ Load order (later overrides earlier):
 `orca` / `orca run`:
 - `[task]`, `--task <text>`, `-p, --prompt <text>`
 - `--spec <path>`, `--plan <path>`, `--config <path>`
-- `--codex-only`, `--claude-only`
+- `--codex-only`
 - `--codex-effort <low|medium|high>`
-- `--claude-effort <low|medium|high|max>`
 - `--on-milestone <cmd>`
 - `--on-task-complete <cmd>`
 - `--on-task-fail <cmd>`
@@ -71,7 +70,7 @@ Load order (later overrides earlier):
 
 `orca status`: `--run <run-id>`, `--last`, `--config <path>`
 
-`orca resume`: `--run <run-id>`, `--last`, `--config <path>`, `--codex-only`, `--claude-only`, `--codex-effort <low|medium|high>`, `--claude-effort <low|medium|high|max>`
+`orca resume`: `--run <run-id>`, `--last`, `--config <path>`, `--codex-only`, `--codex-effort <low|medium|high>`
 
 `orca cancel`: `--run <run-id>`, `--last`, `--config <path>`
 
@@ -82,9 +81,7 @@ Load order (later overrides earlier):
 `orca pr draft|create|publish|status`: `--run <run-id>`, `--last`, `--config <path>` (accepted for compatibility; currently unused by PR command run resolution)
 
 `orca setup`:
-- `--anthropic-key <key>`
 - `--openai-key <key>`
-- `--check`
 - `--global`
 - `--project`
 - `--project-config-template`
@@ -114,11 +111,10 @@ Hook contract:
 
 ## OrcaConfig Reference (complete)
 
-Top-level: `executor`, `anthropicApiKey`, `openaiApiKey`, `runsDir`, `sessionLogs`, `skills`, `maxRetries`, `claude`, `codex`, `hooks`, `hookCommands`, `pr`, `review`
+Top-level: `executor`, `openaiApiKey`, `runsDir`, `sessionLogs`, `skills`, `maxRetries`, `codex`, `hooks`, `hookCommands`, `pr`, `review`
 
 `maxRetries` is an accepted OrcaConfig field; current planner-generated task retry limits are still fixed by task graph contracts.
 
-`claude.*`: `model`, `effort`, `useV2Preview`, `maxTurnsPerTask`, `allowTextJsonFallback`
 
 `codex.*`: `enabled`, `model`, `effort`, `command`, `timeoutMs`, `multiAgent`, `perCwdExtraUserRoots`
 
