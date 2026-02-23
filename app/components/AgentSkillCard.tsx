@@ -27,7 +27,7 @@ orca pr create [--last]  Open a PR for the run's branch
 
 ## Config (~/.orca/config.js or ./orca.config.js)
 export default {
-  executor: "codex",           // "codex" (default) or "claude"
+  executor: "codex",           // "codex" (default)
   sessionLogs: "./session-logs",
   hooks: {
     onComplete: async (event, context) => {
