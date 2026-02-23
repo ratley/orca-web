@@ -772,11 +772,12 @@ orca pr publish --last`}
             desc="Configure API keys and environment. Supports scoped config (global or project-level)."
           >
             <CodeBlock
-              code={`orca setup --openai-key sk-...
+              code={`orca setup                      # auto-detect (default)
+orca setup --openai-key sk-...
 orca setup --anthropic-key sk-ant-...
-orca setup --check     # verify current config (flag/env/openclaw/claude env files)
-orca setup --global    # write to ~/.orca/config.js
-orca setup --project   # write to ./orca.config.js`}
+orca setup --executor codex
+orca setup --ts --global         # write to ~/.orca/config.ts
+orca setup --ts --project        # write to ./orca.config.ts`}
               lang="shell"
             />
             <h3 style={S.h3}>Flags</h3>
@@ -788,16 +789,20 @@ orca setup --project   # write to ./orca.config.js`}
                   desc="Set Anthropic API key"
                 />
                 <Flag
-                  flag="--check"
-                  desc="Verify current configuration is valid"
+                  flag="--executor <codex|claude>"
+                  desc="Explicitly set executor in written config"
+                />
+                <Flag
+                  flag="--ts"
+                  desc="Write TypeScript config output (.ts) instead of .js"
                 />
                 <Flag
                   flag="--global"
-                  desc="Write config to ~/.orca/config.js"
+                  desc="Write global config (~/.orca/config.js by default, or .ts with --ts)"
                 />
                 <Flag
                   flag="--project"
-                  desc="Write config to ./orca.config.js"
+                  desc="Write project config (./orca.config.js by default, or .ts with --ts)"
                 />
                 <Flag
                   flag="--project-config-template"
@@ -886,6 +891,15 @@ orca --help`}
               }}
             >
               <li>
+                <code
+                  style={{
+                    fontFamily: "ui-monospace, monospace",
+                    color: "#22d3ee",
+                  }}
+                >
+                  ~/.orca/config.ts
+                </code>{" "}
+                (takes precedence when both exist) or{" "}
                 <code
                   style={{
                     fontFamily: "ui-monospace, monospace",
