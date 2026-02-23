@@ -1002,16 +1002,6 @@ orca --help`}
                   AGENTS.md
                 </code>
               </li>
-              <li>
-                <code
-                  style={{
-                    fontFamily: "ui-monospace, monospace",
-                    color: "#22d3ee",
-                  }}
-                >
-                  CLAUDE.md
-                </code>
-              </li>
             </ol>
             <p style={{ ...S.p, fontSize: "13px" }}>
               Orca resolves the project root from the nearest{" "}
@@ -1023,8 +1013,7 @@ orca --help`}
               >
                 .git
               </code>{" "}
-              and injects files in deterministic order: AGENTS first, then
-              CLAUDE.
+              and injects AGENTS.md when present.
             </p>
           </section>
 

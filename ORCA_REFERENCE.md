@@ -43,7 +43,7 @@ orca pr status --run <run-id>
 ## Config Discovery / Precedence
 
 Load order (later overrides earlier):
-1. `~/.orca/config.js`
+1. global config: `~/.orca/config.ts` then `~/.orca/config.js` (`.ts` takes precedence when both exist)
 2. project config: `./orca.config.ts` then `./orca.config.js` (`.ts` takes precedence when both exist)
 3. `--config <path>`
 
