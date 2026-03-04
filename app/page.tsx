@@ -439,7 +439,7 @@ export default function Home() {
             id="cmd-run"
             title="orca <task>"
             usage="orca [task] [flags]"
-            desc="Start a new run from a plain-language task. Orca plans tasks, executes them in sequence, and persists run state. You can also provide a spec or plan file instead of a task string."
+            desc="Start a new run from a plain-language task. Orca first runs a low-effort planning-necessity decision, then either generates a full plan for multi-step work or executes directly when one focused task is enough."
           >
             <CodeBlock
               code={`# Run a task
@@ -483,7 +483,7 @@ orca --plan ./specs/feature.md`}
                   desc="Force Codex executor for this run"
                 />
                 <Flag
-                  flag="--codex-effort <low|medium|high>"
+                  flag="--codex-effort <low|medium|high|xhigh>"
                   desc="Override Codex effort for this run"
                 />
                 <Flag
@@ -626,7 +626,7 @@ orca resume --run feature-auth-1766228123456-1a2b`}
                   desc="Force Codex executor for this resume"
                 />
                 <Flag
-                  flag="--codex-effort <low|medium|high>"
+                  flag="--codex-effort <low|medium|high|xhigh>"
                   desc="Override Codex effort for this resume"
                 />
               </tbody>
@@ -1036,7 +1036,11 @@ export default defineOrcaConfig({
   codex: {
     enabled: true,
     model: "gpt-5.3-codex",
-    effort: "medium",
+    thinkingLevel: {
+      decision: "low",
+      planning: "high",
+      execution: "medium",
+    },
     command: "codex",
     timeoutMs: 300000,
     multiAgent: false,
@@ -1068,7 +1072,7 @@ export default defineOrcaConfig({
                 />
                 <Flag
                   flag="codex.*"
-                  desc="enabled, model, effort, command, timeoutMs, multiAgent, perCwdExtraUserRoots"
+                  desc="enabled, model, effort, thinkingLevel.decision|planning|execution, command, timeoutMs, multiAgent, perCwdExtraUserRoots"
                 />
                 <Flag flag="pr.*" desc="enabled, requireConfirmation" />
                 <Flag flag="review.plan.*" desc="enabled, onInvalid" />
@@ -1082,6 +1086,57 @@ export default defineOrcaConfig({
                 />
               </tbody>
             </table>
+            <p style={{ ...S.p, fontSize: "13px", marginTop: "12px" }}>
+              Thinking-level controls are explicit: use
+              <code
+                style={{
+                  fontFamily: "ui-monospace, monospace",
+                  color: "#22d3ee",
+                }}
+              >
+                {" codex.thinkingLevel.decision|planning|execution "}
+              </code>{" "}
+              with canonical values
+              <code
+                style={{
+                  fontFamily: "ui-monospace, monospace",
+                  color: "#22d3ee",
+                }}
+              >
+                {" low|medium|high|xhigh "}
+              </code>
+              .
+            </p>
+            <p style={{ ...S.p, fontSize: "13px" }}>
+              On Codex session startup, Orca calls app-server
+              <code
+                style={{
+                  fontFamily: "ui-monospace, monospace",
+                  color: "#22d3ee",
+                }}
+              >
+                {" skills/list "}
+              </code>{" "}
+              with
+              <code
+                style={{
+                  fontFamily: "ui-monospace, monospace",
+                  color: "#22d3ee",
+                }}
+              >
+                {" cwds: [cwd], forceReload: true "}
+              </code>{" "}
+              and optional
+              <code
+                style={{
+                  fontFamily: "ui-monospace, monospace",
+                  color: "#22d3ee",
+                }}
+              >
+                {" perCwdExtraUserRoots "}
+              </code>
+              .
+            </p>
           </section>
 
           {/* Hooks */}
