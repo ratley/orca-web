@@ -10,6 +10,8 @@ npm install -g orcastrator
 
 ## Run Management
 
+Orca starts each run with a lightweight planning-necessity decision (`needsPlan?`). Multi-step work goes through full planning; simple focused work can execute directly as one task.
+
 ```bash
 orca status                  # list all runs (default)
 orca status --last           # most recent run details

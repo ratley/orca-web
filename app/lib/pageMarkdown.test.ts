@@ -28,6 +28,7 @@ test("ORCA_REFERENCE.md stays aligned with PAGE_MARKDOWN semantics", () => {
   expect(reference).toContain(
     "codex.thinkingLevel.decision|planning|execution",
   );
+  expect(reference).toContain("planning-necessity decision (`needsPlan?`)");
   expect(reference).toContain("skills/list");
   expect(reference).toContain("cwds: [cwd]");
   expect(reference).not.toContain("extra-high");
