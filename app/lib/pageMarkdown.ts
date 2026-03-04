@@ -10,6 +10,8 @@ npm install -g orcastrator
 
 ## Run Management
 
+Orca starts each run with a lightweight planning-necessity decision (\`needsPlan?\`). Multi-step work goes through full planning; simple focused work can execute directly as one task.
+
 \`\`\`shell
 orca status                  # list all runs (default)
 orca status --last           # most recent run details
@@ -52,7 +54,7 @@ Load order (later overrides earlier):
 \`orca\` / \`orca run\`:
 - \`[task]\`, \`--task <text>\`, \`-p, --prompt <text>\`
 - \`--spec <path>\`, \`--plan <path>\`, \`--config <path>\`
-- \`--codex-effort <low|medium|high>\`
+- \`--codex-effort <low|medium|high|xhigh>\`
 - \`--on-milestone <cmd>\`
 - \`--on-task-complete <cmd>\`
 - \`--on-task-fail <cmd>\`
@@ -114,13 +116,17 @@ Hook contract:
 \`maxRetries\` is an accepted OrcaConfig field; current planner-generated task retry limits are still fixed by task graph contracts.
 
 
-\`codex.*\`: \`enabled\`, \`model\`, \`effort\`, \`command\`, \`timeoutMs\`, \`multiAgent\`, \`perCwdExtraUserRoots\`
+\`codex.*\`: \`enabled\`, \`model\`, \`effort\`, \`thinkingLevel.decision|planning|execution\`, \`command\`, \`timeoutMs\`, \`multiAgent\`, \`perCwdExtraUserRoots\`
 
 \`pr.*\`: \`enabled\`, \`requireConfirmation\`
 
 \`review.plan.*\`: \`enabled\`, \`onInvalid\`
 
 \`review.execution.*\`: \`enabled\`, \`maxCycles\`, \`onFindings\`, \`validator.auto\`, \`validator.commands\`, \`prompt\`
+
+Thinking-level controls use \`codex.thinkingLevel.decision|planning|execution\` with canonical values \`low|medium|high|xhigh\`.
+
+Codex app-server integration: at session startup Orca calls \`skills/list\` with \`cwds: [cwd]\`, \`forceReload: true\`, and optional \`codex.perCwdExtraUserRoots\` mappings.
 
 Deprecated compatibility aliases:
 - \`review.enabled\`
