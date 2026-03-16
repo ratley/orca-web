@@ -20,7 +20,7 @@ orca "your task here"
 ## Key Commands
 orca <task>              Start a new run
 orca status [--last]     Check run status
-orca answer <text>       Answer a question the agent raised
+orca answer <run-id> <text>  Answer a question the agent raised
 orca resume [--last]     Resume a paused run
 orca cancel [--last]     Cancel a run
 orca pr create [--last]  Open a PR for the run's branch

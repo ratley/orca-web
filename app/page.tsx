@@ -1237,10 +1237,7 @@ export default defineOrcaConfig({
 orca status --run <run-id>
 
 # 2) Submit the answer
-orca answer <run-id> "yes, use migration A"
-
-# 3) Continue execution
-orca resume --run <run-id>`}
+orca answer <run-id> "yes, use migration A"`}
               lang="shell"
             />
             <p

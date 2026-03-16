@@ -57,6 +57,7 @@ Load order (later overrides earlier):
 - `--codex-only`
 - `--codex-effort <low|medium|high|xhigh>`
 - `--on-milestone <cmd>`
+- `--on-question <cmd>`
 - `--on-task-complete <cmd>`
 - `--on-task-fail <cmd>`
 - `--on-invalid-plan <cmd>`

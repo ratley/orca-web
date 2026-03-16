@@ -56,6 +56,7 @@ Load order (later overrides earlier):
 - \`--spec <path>\`, \`--plan <path>\`, \`--config <path>\`
 - \`--codex-effort <low|medium|high|xhigh>\`
 - \`--on-milestone <cmd>\`
+- \`--on-question <cmd>\`
 - \`--on-task-complete <cmd>\`
 - \`--on-task-fail <cmd>\`
 - \`--on-invalid-plan <cmd>\`
