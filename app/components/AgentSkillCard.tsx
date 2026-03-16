@@ -30,11 +30,15 @@ export default {
   executor: "codex",           // "codex" (default)
   sessionLogs: "./session-logs",
   hooks: {
+    onQuestion: async (event) => {
+      console.log(event.questions[0]?.question);
+    },
     onComplete: async (event, context) => {
       console.log(event.message, context.cwd);
     },
   },
   hookCommands: {
+    onQuestion: "node ./scripts/on-question.mjs",
     onComplete: "node ./scripts/on-complete.mjs",
   },
   codex: { multiAgent: false },
@@ -44,7 +48,7 @@ export default {
 - Codex executor requires ~/.codex/auth.json
 - Must be run inside a git repo
 - Run ID format: <slug>-<unix-ms>-<hex4>
-- Use orca answer to unblock a waiting run`;
+- Use orca answer to respond when status is waiting_for_answer (run resumes automatically)`;
 
 export function AgentSkillCard({ compact = false }: { compact?: boolean }) {
   return (

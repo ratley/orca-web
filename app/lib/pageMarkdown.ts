@@ -24,7 +24,7 @@ orca resume --run <run-id> --codex-only --codex-effort high
 orca cancel --last
 orca cancel --run <run-id>
 
-orca answer <run-id> "yes, use migration A"
+orca answer <run-id> "yes, use migration A"   # answer and resume a run in waiting_for_answer
 \`\`\`
 
 ## PR Workflow
@@ -54,6 +54,7 @@ Load order (later overrides earlier):
 \`orca\` / \`orca run\`:
 - \`[task]\`, \`--task <text>\`, \`-p, --prompt <text>\`
 - \`--spec <path>\`, \`--plan <path>\`, \`--config <path>\`
+- \`--codex-only\`
 - \`--codex-effort <low|medium|high|xhigh>\`
 - \`--on-milestone <cmd>\`
 - \`--on-question <cmd>\`
@@ -75,7 +76,7 @@ Load order (later overrides earlier):
 
 \`orca cancel\`: \`--run <run-id>\`, \`--last\`, \`--config <path>\`
 
-\`orca answer\`: \`[run-id] [answer]\`, \`--run <id>\`
+\`orca answer\`: \`[run-id] [answer]\`; use \`--run <id>\` when selecting the run non-positionally
 
 \`orca list\`: \`--config <path>\`
 
@@ -97,6 +98,7 @@ Load order (later overrides earlier):
 
 Hook names:
 - \`onMilestone\`
+- \`onQuestion\`
 - \`onTaskComplete\`
 - \`onTaskFail\`
 - \`onInvalidPlan\`
@@ -109,6 +111,7 @@ Hook contract:
 - \`context\` is \`{ cwd, pid, invokedAt }\`.
 - Command hooks (\`hookCommands\` and CLI \`--on-*\`) receive JSON via stdin.
 - No \`ORCA_*\` hook payload env-var framing.
+- \`onQuestion\` fires when Codex requests user input and includes \`requestId\`, \`threadId\`, \`turnId\`, \`itemId\`, and \`questions\`.
 - \`onError\` fires for run errors and hook-dispatch/command-hook failures.
 
 ## OrcaConfig Reference (complete)
@@ -117,7 +120,7 @@ Hook contract:
 \`maxRetries\` is an accepted OrcaConfig field; current planner-generated task retry limits are still fixed by task graph contracts.
 
 
-\`codex.*\`: \`enabled\`, \`model\`, \`effort\`, \`thinkingLevel.decision|planning|execution\`, \`command\`, \`timeoutMs\`, \`multiAgent\`, \`perCwdExtraUserRoots\`
+\`codex.*\`: \`enabled\`, \`model\`, \`effort\`, \`thinkingLevel.decision|planning|review|execution\`, \`command\`, \`timeoutMs\`, \`multiAgent\`, \`perCwdExtraUserRoots\`
 
 \`pr.*\`: \`enabled\`, \`requireConfirmation\`
 
@@ -125,7 +128,7 @@ Hook contract:
 
 \`review.execution.*\`: \`enabled\`, \`maxCycles\`, \`onFindings\`, \`validator.auto\`, \`validator.commands\`, \`prompt\`
 
-Thinking-level controls use \`codex.thinkingLevel.decision|planning|execution\` with canonical values \`low|medium|high|xhigh\`.
+Thinking-level controls use \`codex.thinkingLevel.decision|planning|review|execution\` with canonical values \`low|medium|high|xhigh\`.
 
 Codex app-server integration: at session startup Orca calls \`skills/list\` with \`cwds: [cwd]\`, \`forceReload: true\`, and optional \`codex.perCwdExtraUserRoots\` mappings.
 

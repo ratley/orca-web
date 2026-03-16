@@ -475,6 +475,10 @@ orca --plan ./specs/feature.md`}
                   desc="Shell command to run on each milestone"
                 />
                 <Flag
+                  flag="--on-question <cmd>"
+                  desc="Shell command to run when Codex requests user input"
+                />
+                <Flag
                   flag="--on-error <cmd>"
                   desc="Shell command to run on error"
                 />
@@ -679,7 +683,7 @@ orca cancel --run feature-auth-1766228123456-1a2b`}
                 <Flag flag="[answer]" desc="Answer text (positional)" />
                 <Flag
                   flag="--run <id>"
-                  desc="Run ID as a named flag (alias for positional)"
+                  desc="Run ID as a named flag (use instead of positional run-id)"
                 />
               </tbody>
             </table>
@@ -1072,7 +1076,7 @@ export default defineOrcaConfig({
                 />
                 <Flag
                   flag="codex.*"
-                  desc="enabled, model, effort, thinkingLevel.decision|planning|execution, command, timeoutMs, multiAgent, perCwdExtraUserRoots"
+                  desc="enabled, model, effort, thinkingLevel.decision|planning|review|execution, command, timeoutMs, multiAgent, perCwdExtraUserRoots"
                 />
                 <Flag flag="pr.*" desc="enabled, requireConfirmation" />
                 <Flag flag="review.plan.*" desc="enabled, onInvalid" />
@@ -1088,14 +1092,14 @@ export default defineOrcaConfig({
             </table>
             <p style={{ ...S.p, fontSize: "13px", marginTop: "12px" }}>
               Thinking-level controls are explicit: use
-              <code
-                style={{
-                  fontFamily: "ui-monospace, monospace",
-                  color: "#22d3ee",
-                }}
-              >
-                {" codex.thinkingLevel.decision|planning|execution "}
-              </code>{" "}
+                <code
+                  style={{
+                    fontFamily: "ui-monospace, monospace",
+                    color: "#22d3ee",
+                  }}
+                >
+                  {" codex.thinkingLevel.decision|planning|review|execution "}
+                </code>{" "}
               with canonical values
               <code
                 style={{
@@ -1180,6 +1184,10 @@ export default defineOrcaConfig({
                 <Flag
                   flag="onMilestone"
                   desc="Fired at each milestone checkpoint"
+                />
+                <Flag
+                  flag="onQuestion"
+                  desc="Fired when Codex requests user input for the current turn"
                 />
                 <Flag
                   flag="onTaskComplete"
@@ -1411,6 +1419,21 @@ export default {
             <CodeBlock
               code={`type HookEventMap = {
   onMilestone:    BaseHookEvent & { hook: "onMilestone" };
+  onQuestion:     BaseHookEvent & {
+    hook: "onQuestion";
+    requestId: string | number;
+    threadId: string;
+    turnId: string;
+    itemId: string;
+    questions: Array<{
+      header: string;
+      id: string;
+      question: string;
+      isOther: boolean;
+      isSecret: boolean;
+      options?: Array<{ label: string; description: string }> | null;
+    }>;
+  };
   onTaskComplete: BaseHookEvent & { hook: "onTaskComplete"; taskId: string; taskName: string };
   onTaskFail:     BaseHookEvent & { hook: "onTaskFail"; taskId: string; taskName: string; error: string };
   onInvalidPlan:  BaseHookEvent & { hook: "onInvalidPlan"; error: string };
