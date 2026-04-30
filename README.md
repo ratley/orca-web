@@ -24,8 +24,9 @@ From `package.json`:
 - `bun dev` — start local dev server
 - `bun run build` — production build
 - `bun start` — run production server
-- `bun run lint` — run Biome checks
-- `bun run format` — format with Biome
+- `bun run lint` — run Oxlint checks
+- `bun run format` — format with Oxfmt
+- `bun run format:check` — check formatting with Oxfmt
 
 ## Project links
 
