@@ -116,11 +116,26 @@ Hook contract:
 
 ## OrcaConfig Reference (complete)
 
+Top-level: \`executor\`, \`openaiApiKey\`, \`runsDir\`, \`sessionLogs\`, \`skills\`, \`maxRetries\`, \`planner\`, \`claude\`, \`codex\`, \`hooks\`, \`hookCommands\`, \`pr\`, \`review\`
 
 \`maxRetries\` is an accepted OrcaConfig field; current planner-generated task retry limits are still fixed by task graph contracts.
 
+\`planner.*\`: \`agent\`, \`router.model\`
+
+Valid planner shapes:
+- \`{ "planner": { "agent": "auto", "router": { "model": "gpt-5.3-codex-spark" } } }\`
+- \`{ "planner": { "agent": "claude" } }\`
+- \`{ "planner": { "agent": "codex" } }\`
+
+\`planner.router\` is only valid when \`planner.agent\` is \`auto\`; forced \`claude\` or \`codex\` planning bypasses the router.
+
+\`claude.*\`: \`command\`, \`model\`, \`effort\`, \`timeoutMs\`
+
+Claude planning uses the local Claude Code CLI through \`claude -p\`. Codex still executes tasks and runs reviews.
 
 \`codex.*\`: \`enabled\`, \`model\`, \`effort\`, \`thinkingLevel.decision|planning|review|execution\`, \`command\`, \`timeoutMs\`, \`multiAgent\`, \`perCwdExtraUserRoots\`
+
+Model ID unions are typed from provider docs, with an explicit \`customModel("...")\` escape hatch for private or unreleased models. Provider references: [OpenAI models](https://platform.openai.com/docs/models), [Anthropic Claude models](https://docs.anthropic.com/en/docs/about-claude/models), [Claude Code model config](https://docs.anthropic.com/en/docs/claude-code/model-config).
 
 \`pr.*\`: \`enabled\`, \`requireConfirmation\`
 

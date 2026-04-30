@@ -1037,9 +1037,20 @@ export default defineOrcaConfig({
   skills: ["./.orca/skills"],
   maxRetries: 1,
 
+  planner: {
+    agent: "auto",
+    router: { model: "gpt-5.3-codex-spark" },
+  },
+  claude: {
+    command: "claude",
+    model: "claude-opus-4-7",
+    effort: "high",
+    timeoutMs: 300000,
+  },
   codex: {
     enabled: true,
-    model: "gpt-5.3-codex",
+    model: "gpt-5.5",
+    effort: "high",
     thinkingLevel: {
       decision: "low",
       planning: "high",
@@ -1068,11 +1079,19 @@ export default defineOrcaConfig({
               <tbody>
                 <Flag
                   flag="Top-level"
-                  desc="executor, openaiApiKey, runsDir, sessionLogs, skills, maxRetries, hooks, hookCommands, pr, review, codex"
+                  desc="executor, openaiApiKey, runsDir, sessionLogs, skills, maxRetries, planner, claude, codex, hooks, hookCommands, pr, review"
                 />
                 <Flag
                   flag="maxRetries"
                   desc="Accepted OrcaConfig field; current planner-generated task retry limits remain fixed by task graph contracts"
+                />
+                <Flag
+                  flag="planner.*"
+                  desc="agent, router.model. router is only valid when agent is auto"
+                />
+                <Flag
+                  flag="claude.*"
+                  desc="command, model, effort, timeoutMs. Claude planning uses local Claude Code through claude -p"
                 />
                 <Flag
                   flag="codex.*"
@@ -1091,15 +1110,48 @@ export default defineOrcaConfig({
               </tbody>
             </table>
             <p style={{ ...S.p, fontSize: "13px", marginTop: "12px" }}>
+              Planner routing has three JSON-readable shapes:
+            </p>
+            <CodeBlock
+              code={`[
+  { "planner": { "agent": "auto", "router": { "model": "gpt-5.3-codex-spark" } } },
+  { "planner": { "agent": "claude" } },
+  { "planner": { "agent": "codex" } }
+]`}
+              lang="json"
+            />
+            <p style={{ ...S.p, fontSize: "13px", marginTop: "12px" }}>
+              Forced Claude or Codex planning bypasses the router, so those
+              configs should not include{" "}
+              <code
+                style={{
+                  fontFamily: "ui-monospace, monospace",
+                  color: "#22d3ee",
+                }}
+              >
+                router
+              </code>
+              . Claude planning shells out to{" "}
+              <code
+                style={{
+                  fontFamily: "ui-monospace, monospace",
+                  color: "#22d3ee",
+                }}
+              >
+                claude -p
+              </code>
+              ; Codex still executes tasks and runs reviews.
+            </p>
+            <p style={{ ...S.p, fontSize: "13px", marginTop: "12px" }}>
               Thinking-level controls are explicit: use
-                <code
-                  style={{
-                    fontFamily: "ui-monospace, monospace",
-                    color: "#22d3ee",
-                  }}
-                >
-                  {" codex.thinkingLevel.decision|planning|review|execution "}
-                </code>{" "}
+              <code
+                style={{
+                  fontFamily: "ui-monospace, monospace",
+                  color: "#22d3ee",
+                }}
+              >
+                {" codex.thinkingLevel.decision|planning|review|execution "}
+              </code>{" "}
               with canonical values
               <code
                 style={{
@@ -1109,6 +1161,42 @@ export default defineOrcaConfig({
               >
                 {" low|medium|high|xhigh "}
               </code>
+              .
+            </p>
+            <p style={{ ...S.p, fontSize: "13px" }}>
+              Model IDs are strongly typed for documented provider models, with{" "}
+              <code
+                style={{
+                  fontFamily: "ui-monospace, monospace",
+                  color: "#22d3ee",
+                }}
+              >
+                customModel("...")
+              </code>{" "}
+              for private, unreleased, or provider-specific IDs.
+            </p>
+            <p style={{ ...S.p, fontSize: "13px" }}>
+              When updating model lists, check{" "}
+              <a
+                href="https://platform.openai.com/docs/models"
+                style={{ color: "#93c5fd", textDecoration: "none" }}
+              >
+                OpenAI models
+              </a>
+              {", "}
+              <a
+                href="https://docs.anthropic.com/en/docs/about-claude/models"
+                style={{ color: "#93c5fd", textDecoration: "none" }}
+              >
+                Anthropic Claude models
+              </a>
+              {", and "}
+              <a
+                href="https://docs.anthropic.com/en/docs/claude-code/model-config"
+                style={{ color: "#93c5fd", textDecoration: "none" }}
+              >
+                Claude Code model config
+              </a>
               .
             </p>
             <p style={{ ...S.p, fontSize: "13px" }}>
