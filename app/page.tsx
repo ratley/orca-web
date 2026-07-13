@@ -3,32 +3,49 @@ import { CodeBlock } from "./components/CodeBlock";
 import { InstallCommandSwitcher } from "./components/InstallCommandSwitcher";
 import { PageCopyButton } from "./components/PageCopyButton";
 
-// ─── Nav items ───────────────────────────────────────────────────────────────
+interface NavItem {
+  id: string;
+  label: string;
+  accent?: boolean;
+}
 
-const NAV_COMMANDS: Array<{ id: string; label: string; accent?: boolean }> = [
-  { id: "get-started", label: "Get Started", accent: true },
-  { id: "cmd-run", label: "orca <task>" },
-  { id: "cmd-plan", label: "orca plan" },
-  { id: "cmd-status", label: "orca status" },
-  { id: "cmd-list", label: "orca list" },
-  { id: "cmd-resume", label: "orca resume" },
-  { id: "cmd-cancel", label: "orca cancel" },
-  { id: "cmd-answer", label: "orca answer" },
-  { id: "cmd-pr", label: "orca pr" },
-  { id: "cmd-setup", label: "orca setup" },
-  { id: "cmd-skills", label: "orca skills" },
-  { id: "cmd-help", label: "orca help" },
+const NAV_GROUPS: Array<{ label: string; items: NavItem[] }> = [
+  {
+    label: "Start",
+    items: [
+      { id: "get-started", label: "Get Started", accent: true },
+      { id: "mental-model", label: "Mental Model" },
+      { id: "surfaces", label: "Dispatch Surfaces" },
+    ],
+  },
+  {
+    label: "Commands",
+    items: [
+      { id: "cmd-dispatch", label: "orca dispatch" },
+      { id: "cmd-inspect", label: "orca inspect" },
+      { id: "cmd-answer", label: "orca answer" },
+      { id: "cmd-resume", label: "orca resume" },
+      { id: "cmd-lanes", label: "orca lanes" },
+      { id: "cmd-kill", label: "orca kill" },
+      { id: "cmd-agents", label: "orca agents" },
+      { id: "cmd-contract", label: "orca contract" },
+    ],
+  },
+  {
+    label: "Contract",
+    items: [
+      { id: "question-flow", label: "Blocked Questions" },
+      { id: "envelopes", label: "Envelopes" },
+      { id: "exit-codes", label: "Exit Codes" },
+      { id: "storage", label: "Durable State" },
+      { id: "legacy", label: "Legacy Compatibility" },
+    ],
+  },
+  {
+    label: "Resources",
+    items: [{ id: "agent-skill", label: "Agent Skill" }],
+  },
 ];
-
-const NAV_CONFIG = [
-  { id: "config-discovery", label: "Discovery" },
-  { id: "config-project-instructions", label: "Project Instructions" },
-  { id: "config-options", label: "Options" },
-  { id: "config-hooks", label: "Hooks" },
-  { id: "config-multiagent", label: "Multi-agent" },
-];
-
-// ─── Shared style tokens ─────────────────────────────────────────────────────
 
 const S = {
   section: {
@@ -39,15 +56,15 @@ const S = {
     fontSize: "22px",
     fontWeight: 600,
     color: "#f1f5f9",
-    margin: "0 0 6px",
+    margin: "0 0 8px",
     fontFamily: "ui-monospace, monospace",
     letterSpacing: "-0.02em",
   } as React.CSSProperties,
   h3: {
-    fontSize: "17px",
+    fontSize: "16px",
     fontWeight: 600,
     color: "#e2e8f0",
-    margin: "28px 0 6px",
+    margin: "28px 0 8px",
     fontFamily: "ui-monospace, monospace",
   } as React.CSSProperties,
   p: {
@@ -55,27 +72,28 @@ const S = {
     lineHeight: "1.7",
     margin: "0 0 12px",
   } as React.CSSProperties,
-  flagTable: {
+  table: {
     width: "100%",
     borderCollapse: "collapse" as const,
     fontSize: "13px",
-    margin: "12px 0",
+    margin: "14px 0",
   },
-  flagRow: {
+  row: {
     borderBottom: "1px solid #1f1f1f",
   } as React.CSSProperties,
-  flagCell: {
-    padding: "7px 12px 7px 0",
-    verticalAlign: "top",
-    color: "#a1a1aa",
-  } as React.CSSProperties,
-  flagName: {
-    padding: "7px 16px 7px 0",
+  keyCell: {
+    padding: "8px 16px 8px 0",
     verticalAlign: "top",
     color: "#22d3ee",
     fontFamily: "ui-monospace, monospace",
     whiteSpace: "nowrap" as const,
     fontSize: "12px",
+  } as React.CSSProperties,
+  valueCell: {
+    padding: "8px 0",
+    verticalAlign: "top",
+    color: "#a1a1aa",
+    lineHeight: "1.55",
   } as React.CSSProperties,
   badge: {
     display: "inline-block",
@@ -87,218 +105,121 @@ const S = {
     marginRight: "6px",
     letterSpacing: "0.04em",
   } as React.CSSProperties,
-  divider: {
-    height: "1px",
-    background: "#1f1f1f",
-    margin: "28px 0",
-    border: "none",
-  } as React.CSSProperties,
   note: {
-    background: "#1a1a2e",
+    background: "#111d2b",
     border: "1px solid #1e3a5f",
     borderRadius: "6px",
     padding: "12px 16px",
     color: "#7dd3fc",
     fontSize: "13px",
-    lineHeight: "1.6",
-    margin: "12px 0",
+    lineHeight: "1.65",
+    margin: "14px 0",
+  } as React.CSSProperties,
+  list: {
+    color: "#a1a1aa",
+    lineHeight: "1.8",
+    paddingLeft: "20px",
+    margin: "8px 0 16px",
   } as React.CSSProperties,
 };
 
-// ─── Flag row helper ─────────────────────────────────────────────────────────
-
-function Flag({ flag, desc }: { flag: string; desc: string }) {
+function DocRow({ name, children }: { name: string; children: React.ReactNode }) {
   return (
-    <tr style={S.flagRow}>
-      <td style={S.flagName}>{flag}</td>
-      <td style={S.flagCell}>{desc}</td>
+    <tr style={S.row}>
+      <td style={S.keyCell}>{name}</td>
+      <td style={S.valueCell}>{children}</td>
     </tr>
   );
 }
-
-// ─── Section header ───────────────────────────────────────────────────────────
 
 function CmdSection({
   id,
   title,
   usage,
-  desc,
+  description,
   children,
 }: {
   id: string;
   title: string;
-  usage?: string;
-  desc?: string;
+  usage: string;
+  description: string;
   children?: React.ReactNode;
 }) {
   return (
     <section id={id} style={S.section}>
       <h2 style={S.h2}>{title}</h2>
-      {usage && (
-        <div style={{ marginBottom: "10px" }}>
-          <span style={S.badge}>usage</span>
-          <code
-            style={{
-              fontFamily: "ui-monospace, monospace",
-              fontSize: "13px",
-              color: "#e2e8f0",
-            }}
-          >
-            {usage}
-          </code>
-        </div>
-      )}
-      {desc && <p style={S.p}>{desc}</p>}
+      <div style={{ marginBottom: "12px" }}>
+        <span style={S.badge}>usage</span>
+        <code style={{ color: "#e2e8f0", fontSize: "13px" }}>{usage}</code>
+      </div>
+      <p style={S.p}>{description}</p>
       {children}
     </section>
   );
 }
 
-// ─── Sidebar ──────────────────────────────────────────────────────────────────
+function SectionLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <div
+      style={{
+        paddingTop: "36px",
+        paddingBottom: "2px",
+        color: "#52525b",
+        fontSize: "11px",
+        fontFamily: "ui-monospace, monospace",
+        letterSpacing: "0.1em",
+        textTransform: "uppercase",
+      }}
+    >
+      {children}
+    </div>
+  );
+}
 
 function Sidebar() {
   return (
-    <nav
-      style={{
-        width: "200px",
-        flexShrink: 0,
-        position: "sticky",
-        top: "64px",
-        height: "calc(100vh - 64px)",
-        overflowY: "auto",
-        padding: "24px 0 24px 0",
-        borderRight: "1px solid #1f1f1f",
-      }}
-    >
-      <div style={{ marginBottom: "20px" }}>
-        <div
-          style={{
-            fontSize: "10px",
-            fontFamily: "ui-monospace, monospace",
-            letterSpacing: "0.1em",
-            textTransform: "uppercase",
-            color: "#52525b",
-            marginBottom: "8px",
-            paddingLeft: "16px",
-          }}
-        >
-          Commands
-        </div>
-        {NAV_COMMANDS.map((item) => (
-          <a
-            key={item.id}
-            href={`#${item.id}`}
+    <nav className="docs-sidebar">
+      {NAV_GROUPS.map((group) => (
+        <div key={group.label} style={{ marginBottom: "20px" }}>
+          <div
             style={{
-              display: "block",
-              padding: "4px 16px",
-              fontSize: "13px",
-              color: item.accent ? "#22d3ee" : "#71717a",
-              textDecoration: "none",
+              fontSize: "10px",
               fontFamily: "ui-monospace, monospace",
-              opacity: item.accent ? 0.85 : 1,
+              letterSpacing: "0.1em",
+              textTransform: "uppercase",
+              color: "#52525b",
+              marginBottom: "8px",
+              paddingLeft: "16px",
             }}
           >
-            {item.label}
-          </a>
-        ))}
-      </div>
-      <div>
-        <div
-          style={{
-            fontSize: "10px",
-            fontFamily: "ui-monospace, monospace",
-            letterSpacing: "0.1em",
-            textTransform: "uppercase",
-            color: "#52525b",
-            marginBottom: "8px",
-            paddingLeft: "16px",
-          }}
-        >
-          Config
+            {group.label}
+          </div>
+          {group.items.map((item) => (
+            <a
+              key={item.id}
+              href={`#${item.id}`}
+              style={{
+                display: "block",
+                padding: "4px 16px",
+                fontSize: "13px",
+                color: item.accent ? "#22d3ee" : "#71717a",
+                textDecoration: "none",
+                fontFamily: "ui-monospace, monospace",
+              }}
+            >
+              {item.label}
+            </a>
+          ))}
         </div>
-        {NAV_CONFIG.map((item) => (
-          <a
-            key={item.id}
-            href={`#${item.id}`}
-            style={{
-              display: "block",
-              padding: "4px 16px",
-              fontSize: "13px",
-              color: "#71717a",
-              textDecoration: "none",
-              fontFamily: "ui-monospace, monospace",
-            }}
-          >
-            {item.label}
-          </a>
-        ))}
-      </div>
-
-      <div style={{ marginTop: "20px" }}>
-        <div
-          style={{
-            fontSize: "10px",
-            fontFamily: "ui-monospace, monospace",
-            letterSpacing: "0.1em",
-            textTransform: "uppercase",
-            color: "#52525b",
-            marginBottom: "8px",
-            paddingLeft: "16px",
-          }}
-        >
-          Resources
-        </div>
-        <a
-          href="#agent-skill"
-          style={{
-            display: "block",
-            padding: "4px 16px",
-            fontSize: "13px",
-            color: "#71717a",
-            textDecoration: "none",
-            fontFamily: "ui-monospace, monospace",
-          }}
-        >
-          Agent Skill
-        </a>
-        <a
-          href="#types"
-          style={{
-            display: "block",
-            padding: "4px 16px",
-            fontSize: "13px",
-            color: "#71717a",
-            textDecoration: "none",
-            fontFamily: "ui-monospace, monospace",
-          }}
-        >
-          Types
-        </a>
-      </div>
+      ))}
     </nav>
   );
 }
 
-// ─── Page ─────────────────────────────────────────────────────────────────────
-
 export default function Home() {
   return (
     <>
-      {/* ── Header ── */}
-      <header
-        style={{
-          position: "sticky",
-          top: 0,
-          zIndex: 50,
-          background: "#0f0f0f",
-          borderBottom: "1px solid #1f1f1f",
-          height: "56px",
-          display: "flex",
-          alignItems: "center",
-          padding: "0 24px",
-          gap: "24px",
-        }}
-      >
+      <header className="docs-header">
         <a
           href="#hero"
           style={{
@@ -312,1095 +233,396 @@ export default function Home() {
         >
           🐋 orca
         </a>
-        <div
-          style={{
-            display: "flex",
-            gap: "20px",
-            fontSize: "13px",
-            marginLeft: "8px",
-          }}
+        <div className="docs-header-links">
+          <a href="#cmd-dispatch">commands</a>
+          <a href="#envelopes">contract</a>
+        </div>
+        <a
+          href="https://github.com/ratley/orca"
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{ marginLeft: "auto", color: "#52525b", textDecoration: "none", fontSize: "13px" }}
         >
-          <a href="#cmd-run" style={{ color: "#71717a", textDecoration: "none" }}>
-            commands
-          </a>
-          <a href="#config-discovery" style={{ color: "#71717a", textDecoration: "none" }}>
-            config
-          </a>
-        </div>
-        <div style={{ marginLeft: "auto", fontSize: "13px" }}>
-          <a
-            href="https://github.com/ratley/orca"
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{ color: "#52525b", textDecoration: "none" }}
-          >
-            github ↗
-          </a>
-        </div>
+          github ↗
+        </a>
       </header>
 
-      {/* ── Body: sidebar + main ── */}
-      <div
-        style={{
-          display: "flex",
-          maxWidth: "1000px",
-          margin: "0 auto",
-          minHeight: "calc(100vh - 56px)",
-        }}
-      >
-        {/* Sidebar — hidden on small screens via inline media query workaround */}
-        <div className="sidebar-wrapper" style={{ display: "flex" }}>
-          <Sidebar />
-        </div>
+      <div className="docs-shell">
+        <Sidebar />
 
-        {/* Main content */}
-        <main
-          style={{
-            flex: 1,
-            padding: "0 40px",
-            minWidth: 0,
-            maxWidth: "740px",
-          }}
-        >
-          {/* ── Copy page button ── */}
+        <main className="docs-main">
           <PageCopyButton />
 
-          {/* ── Hero ── */}
-          <section
-            id="hero"
-            style={{
-              padding: "48px 0 32px",
-              borderBottom: "1px solid #1f1f1f",
-            }}
-          >
-            <h1
-              style={{
-                fontSize: "28px",
-                fontWeight: 700,
-                color: "#f1f5f9",
-                margin: "0 0 12px",
-                fontFamily: "ui-monospace, monospace",
-                letterSpacing: "-0.03em",
-              }}
-            >
-              orca
-            </h1>
+          <section id="hero" className="docs-hero">
+            <div style={{ display: "flex", alignItems: "center", gap: "9px", marginBottom: "12px" }}>
+              <h1
+                style={{
+                  fontSize: "30px",
+                  fontWeight: 700,
+                  color: "#f1f5f9",
+                  margin: 0,
+                  fontFamily: "ui-monospace, monospace",
+                  letterSpacing: "-0.04em",
+                }}
+              >
+                orca
+              </h1>
+              <span style={S.badge}>orca/v1</span>
+            </div>
             <p
               style={{
                 fontSize: "16px",
                 color: "#a1a1aa",
                 margin: "0 0 24px",
-                lineHeight: "1.6",
-                maxWidth: "520px",
+                lineHeight: "1.65",
+                maxWidth: "590px",
               }}
             >
-              Coordinated agent run harness. Breaks down a task into a graph of tasks, then executes it end-to-end via a
-              persistent{" "}
-              <a
-                href="https://developers.openai.com/codex/app-server/"
-                style={{ color: "#22d3ee", textDecoration: "none" }}
-              >
-                Codex
-              </a>{" "}
-              session with full context across tasks.
+              Observable agent lanes with one machine-readable contract. Dispatch Codex, Claude, or Cursor work; inspect
+              durable evidence; answer blocked questions; and resume the same native session with verified continuity.
             </p>
 
-            <div id="get-started" style={{ marginBottom: "8px" }}>
+            <div id="get-started">
               <InstallCommandSwitcher />
+            </div>
+            <CodeBlock
+              code={`# Discover the installed contract first
+orca contract
+orca agents
+
+# Dispatch an internal Codex worker
+orca dispatch --agent codex --cwd . "Review the current diff"`}
+              lang="shell"
+            />
+          </section>
+
+          <section id="mental-model" style={S.section}>
+            <h2 style={S.h2}>Mental Model</h2>
+            <p style={S.p}>
+              Orca is a substrate for orchestrators, not an orchestrator itself. The caller decides what work to
+              delegate and how to judge it. Orca owns native session binding, durable state, process control, continuity
+              checks, and a stable JSON boundary across agents.
+            </p>
+            <div style={S.note}>
+              Run <code>orca contract</code> and trust it over remembered behavior. Run <code>orca agents</code> before
+              routing work so capability and caveat decisions use the live adapter manifests.
+            </div>
+            <table style={S.table}>
+              <tbody>
+                <DocRow name="lane">Orca&apos;s durable unit of delegated work.</DocRow>
+                <DocRow name="native session">The Codex thread, Claude session, or Cursor chat bound to a lane.</DocRow>
+                <DocRow name="event stream">Append-only evidence with gap-free sequence numbers.</DocRow>
+                <DocRow name="envelope">The final, versioned JSON result emitted by every lane verb.</DocRow>
+              </tbody>
+            </table>
+          </section>
+
+          <section id="surfaces" style={S.section}>
+            <h2 style={S.h2}>Dispatch Surfaces</h2>
+            <h3 style={S.h3}>lane — internal worker (default)</h3>
+            <p style={S.p}>
+              A worker intended to report its result back to a coordinating agent or script. It remains durable so it
+              can be inspected and resumed.
+            </p>
+            <CodeBlock code={`orca dispatch --agent codex --cwd . "Investigate the flaky test"`} lang="shell" />
+
+            <h3 style={S.h3}>task — user-followable Codex thread</h3>
+            <p style={S.p}>
+              A deliberately named thread intended for direct follow-up in Codex clients that share the same
+              <code> CODEX_HOME</code>. Task surface is Codex-only and requires a non-empty <code>--label</code>.
+            </p>
+            <CodeBlock
+              code={`orca dispatch --agent codex --surface task \\
+  --label "HAPPY-123 — Fix API" \\
+  --cwd /path/to/existing/worktree \\
+  "Implement HAPPY-123 and run its focused tests"`}
+              lang="shell"
+            />
+            <div style={S.note}>
+              Task surface does not provision a Codex Desktop-managed project or worktree. Pass an existing checkout
+              with <code>--cwd</code>. Persistent lane threads can also appear in Desktop because the requested source
+              is a host-normalized hint, not a visibility filter.
             </div>
           </section>
 
-          {/* ══════════════════════════════════════════════
-              COMMANDS
-          ══════════════════════════════════════════════ */}
+          <SectionLabel>Commands</SectionLabel>
 
-          <div
-            style={{
-              paddingTop: "32px",
-              paddingBottom: "8px",
-              color: "#52525b",
-              fontSize: "11px",
-              fontFamily: "ui-monospace, monospace",
-              letterSpacing: "0.1em",
-              textTransform: "uppercase",
-            }}
-          >
-            Commands
-          </div>
-
-          {/* orca <task> */}
           <CmdSection
-            id="cmd-run"
-            title="orca <task>"
-            usage="orca [task] [flags]"
-            desc="Start a new run from a plain-language task. Orca first runs a low-effort planning-necessity decision, then either generates a full plan for multi-step work or executes directly when one focused task is enough."
+            id="cmd-dispatch"
+            title="orca dispatch"
+            usage="orca dispatch --agent <agent> [--surface lane|task] [--model <model>] [--cwd <dir>] [--label <label>] [--timeout <ms>] <prompt>"
+            description="Create a lane and drive one native agent turn until it completes, fails, is killed, times out, or blocks on a question."
+          >
+            <table style={S.table}>
+              <tbody>
+                <DocRow name="--agent">Required adapter: codex, claude, or cursor.</DocRow>
+                <DocRow name="--surface">Ownership surface. Defaults to lane; task is Codex-only.</DocRow>
+                <DocRow name="--model">Adapter-specific model override.</DocRow>
+                <DocRow name="--cwd">Agent working directory. Defaults to the current directory.</DocRow>
+                <DocRow name="--label">Orca label; required native title for task surface.</DocRow>
+                <DocRow name="--timeout">One deadline shared by connection, session binding, and the turn.</DocRow>
+              </tbody>
+            </table>
+            <p style={S.p}>
+              Dispatch prints a handle line immediately after lane creation, then exactly one final envelope. Capture
+              the handle when another process may need to inspect or kill the lane before the turn settles.
+            </p>
+            <CodeBlock
+              code={`{"v":1,"kind":"handle","laneId":"lane_a3f81c02","agent":"codex"}
+{"v":1,"kind":"lane","ok":true,"status":"completed","lane":{"id":"lane_a3f81c02","agent":"codex","surface":"lane"},"delivery":"confirmed","nativeStatus":"completed","semanticOutcome":"unknown","result":{"text":"..."}}`}
+              lang="json"
+            />
+          </CmdSection>
+
+          <CmdSection
+            id="cmd-inspect"
+            title="orca inspect"
+            usage="orca inspect <laneId> [--follow] [--since <seq>] [--wait-for blocked|done] [--timeout <ms>]"
+            description="Read current state and durable events, optionally following until a target state is reached."
           >
             <CodeBlock
-              code={`# Run a task
-orca "add auth to the app"
-
-# Run with a spec or plan file
-orca --spec ./specs/feature.md
-orca --plan ./specs/feature.md`}
+              code={`orca inspect lane_a3f81c02
+orca inspect lane_a3f81c02 --since 7
+orca inspect lane_a3f81c02 --follow
+orca inspect lane_a3f81c02 --wait-for blocked --timeout 600000`}
               lang="shell"
             />
-            <h3 style={S.h3}>Flags</h3>
-            <table style={S.flagTable}>
-              <tbody>
-                <Flag flag="[task]" desc="Plain-language task (positional)" />
-                <Flag flag="--task, -p, --prompt <text>" desc="Task as a named flag (alias for positional)" />
-                <Flag flag="--spec <path>" desc="Path to a spec/markdown breakdown file" />
-                <Flag flag="--plan <path>" desc="Path to a plan file (same as --spec)" />
-                <Flag flag="--config <path>" desc="Path to an orca config file" />
-                <Flag flag="--on-milestone <cmd>" desc="Shell command to run on each milestone" />
-                <Flag flag="--on-question <cmd>" desc="Shell command to run when Codex requests user input" />
-                <Flag flag="--on-error <cmd>" desc="Shell command to run on error" />
-                <Flag flag="--codex-only" desc="Force Codex executor for this run" />
-                <Flag flag="--codex-effort <low|medium|high|xhigh>" desc="Override Codex effort for this run" />
-                <Flag flag="--on-task-complete <cmd>" desc="Shell command to run when a task completes" />
-                <Flag flag="--on-task-fail <cmd>" desc="Shell command to run when a task fails" />
-                <Flag
-                  flag="--on-invalid-plan <cmd>"
-                  desc="Shell command to run when planner/review output is invalid"
-                />
-                <Flag
-                  flag="--on-findings <cmd>"
-                  desc="Shell command to run when post-execution review reports findings"
-                />
-                <Flag flag="--on-complete <cmd>" desc="Shell command to run when the full run completes" />
-                <Flag flag="-h, --help" desc="Show help" />
-                <Flag flag="-V, --version" desc="Show version" />
-              </tbody>
-            </table>
+            <p style={S.p}>
+              <code>--since N</code> returns events with a sequence greater than N. Terminal states also satisfy
+              <code> --wait-for blocked</code>, so always read the returned <code>status</code> instead of assuming the
+              lane actually blocked.
+            </p>
           </CmdSection>
 
-          {/* orca plan */}
-          <CmdSection
-            id="cmd-plan"
-            title="orca plan"
-            usage="orca plan [flags]"
-            desc="Plan tasks without executing them. Useful for reviewing the task breakdown before committing to a run."
-          >
-            <CodeBlock code={`orca plan --spec ./specs/feature.md`} lang="shell" />
-            <h3 style={S.h3}>Flags</h3>
-            <table style={S.flagTable}>
-              <tbody>
-                <Flag flag="--spec <path>" desc="Path to a spec/markdown breakdown file" />
-                <Flag flag="--config <path>" desc="Path to an orca config file" />
-                <Flag flag="--on-milestone <cmd>" desc="Shell command to run on each milestone" />
-                <Flag flag="--on-error <cmd>" desc="Shell command to run on error" />
-              </tbody>
-            </table>
-          </CmdSection>
-
-          {/* orca status */}
-          <CmdSection
-            id="cmd-status"
-            title="orca status"
-            usage="orca status [flags]"
-            desc="Without --run or --last, lists all runs as a summary table. With --run or --last, shows detailed status for a specific run — tasks completed, in-progress, pending, or failed."
-          >
-            <CodeBlock
-              code={`orca status            # list all runs (summary table)
-orca status --last     # status of the most recent run
-orca status --run <id> # status of a specific run`}
-              lang="shell"
-            />
-            <h3 style={S.h3}>Flags</h3>
-            <table style={S.flagTable}>
-              <tbody>
-                <Flag flag="--run <run-id>" desc="Show status for a specific run ID" />
-                <Flag flag="--last" desc="Show status for the most recent run" />
-                <Flag flag="--config <path>" desc="Path to an orca config file" />
-              </tbody>
-            </table>
-          </CmdSection>
-
-          {/* orca list */}
-          <CmdSection
-            id="cmd-list"
-            title="orca list"
-            usage="orca list [flags]"
-            desc="List all runs stored in the runs directory."
-          >
-            <CodeBlock code={`orca list`} lang="shell" />
-            <h3 style={S.h3}>Flags</h3>
-            <table style={S.flagTable}>
-              <tbody>
-                <Flag flag="--config <path>" desc="Path to an orca config file" />
-              </tbody>
-            </table>
-          </CmdSection>
-
-          {/* orca resume */}
-          <CmdSection
-            id="cmd-resume"
-            title="orca resume"
-            usage="orca resume [flags]"
-            desc="Resume a paused or interrupted run from where it left off."
-          >
-            <CodeBlock
-              code={`orca resume --last
-orca resume --run feature-auth-1766228123456-1a2b`}
-              lang="shell"
-            />
-            <h3 style={S.h3}>Flags</h3>
-            <table style={S.flagTable}>
-              <tbody>
-                <Flag flag="--run <run-id>" desc="Resume a specific run by ID" />
-                <Flag flag="--last" desc="Resume the most recent run" />
-                <Flag flag="--config <path>" desc="Path to an orca config file" />
-                <Flag flag="--codex-only" desc="Force Codex executor for this resume" />
-                <Flag flag="--codex-effort <low|medium|high|xhigh>" desc="Override Codex effort for this resume" />
-              </tbody>
-            </table>
-          </CmdSection>
-
-          {/* orca cancel */}
-          <CmdSection
-            id="cmd-cancel"
-            title="orca cancel"
-            usage="orca cancel [flags]"
-            desc="Cancel a running or paused run."
-          >
-            <CodeBlock
-              code={`orca cancel --last
-orca cancel --run feature-auth-1766228123456-1a2b`}
-              lang="shell"
-            />
-            <h3 style={S.h3}>Flags</h3>
-            <table style={S.flagTable}>
-              <tbody>
-                <Flag flag="--run <run-id>" desc="Cancel a specific run by ID" />
-                <Flag flag="--last" desc="Cancel the most recent run" />
-                <Flag flag="--config <path>" desc="Path to an orca config file" />
-              </tbody>
-            </table>
-          </CmdSection>
-
-          {/* orca answer */}
           <CmdSection
             id="cmd-answer"
             title="orca answer"
-            usage="orca answer <run-id> <answer>"
-            desc="Provide an answer to a run that is blocked waiting for input."
+            usage="orca answer <laneId> <text>"
+            description="Submit an answer to a blocked lane's pending question."
           >
-            <CodeBlock code={`orca answer feature-auth-1766228123456-1a2b "yes, use migration A"`} lang="shell" />
-            <h3 style={S.h3}>Flags</h3>
-            <table style={S.flagTable}>
-              <tbody>
-                <Flag flag="[run-id]" desc="Run ID (positional)" />
-                <Flag flag="[answer]" desc="Answer text (positional)" />
-                <Flag flag="--run <id>" desc="Run ID as a named flag (use instead of positional run-id)" />
-              </tbody>
-            </table>
-          </CmdSection>
-
-          {/* orca pr */}
-          <CmdSection
-            id="cmd-pr"
-            title="orca pr"
-            usage="orca pr <subcommand> [flags]"
-            desc="Manage pull requests for a run. Subcommands: draft, create, publish, status."
-          >
-            <CodeBlock
-              code={`orca pr                          # default pr action
-orca pr draft   --run <run-id>   # open a draft PR
-orca pr create  --run <run-id>   # create a PR
-orca pr publish --run <run-id>   # publish (un-draft) the PR
-orca pr status  --run <run-id>   # check PR status`}
-              lang="shell"
-            />
-            <h3 style={S.h3}>Flags</h3>
-            <table style={S.flagTable}>
-              <tbody>
-                <Flag flag="--run <run-id>" desc="Target a specific run by ID" />
-                <Flag flag="--last" desc="Target the most recent run" />
-                <Flag
-                  flag="--config <path>"
-                  desc="Accepted for compatibility; currently unused by PR command run resolution"
-                />
-              </tbody>
-            </table>
-          </CmdSection>
-
-          {/* orca pr publish */}
-          <CmdSection
-            id="cmd-pr-publish"
-            title="orca pr publish"
-            usage="orca pr publish [flags]"
-            desc="Publish a draft PR for a run (ready for review). In TTY mode, run selection is interactive when --run/--last is omitted; non-TTY requires --run or --last."
-          >
-            <CodeBlock
-              code={`orca pr publish --run <run-id>
-orca pr publish --last
-orca pr publish --config ./orca.config.js   # accepted, currently unused by PR command resolution
-
-# Non-TTY requires explicit selection
-orca pr publish --last`}
-              lang="shell"
-            />
-            <h3 style={S.h3}>Flags</h3>
-            <table style={S.flagTable}>
-              <tbody>
-                <Flag flag="--run <run-id>" desc="Target a specific run by ID" />
-                <Flag flag="--last" desc="Target the most recent run" />
-                <Flag
-                  flag="--config <path>"
-                  desc="Accepted for compatibility; currently unused by PR command run resolution"
-                />
-              </tbody>
-            </table>
-          </CmdSection>
-
-          {/* orca setup */}
-          <CmdSection
-            id="cmd-setup"
-            title="orca setup"
-            usage="orca setup [flags]"
-            desc="Configure API keys and environment. Supports scoped config (global or project-level)."
-          >
-            <CodeBlock
-              code={`orca setup                      # auto-detect (default)
-orca setup --openai-key sk-...
-orca setup --openai-key sk-...
-orca setup --executor codex
-orca setup --ts --global         # write to ~/.orca/config.ts
-orca setup --ts --project        # write to ./orca.config.ts`}
-              lang="shell"
-            />
-            <h3 style={S.h3}>Flags</h3>
-            <table style={S.flagTable}>
-              <tbody>
-                <Flag flag="--openai-key <key>" desc="Set OpenAI API key" />
-                <Flag flag="--executor <codex>" desc="Explicitly set executor in written config" />
-                <Flag flag="--ts" desc="Write TypeScript config output (.ts) instead of .js" />
-                <Flag flag="--global" desc="Write global config (~/.orca/config.js by default, or .ts with --ts)" />
-                <Flag flag="--project" desc="Write project config (./orca.config.js by default, or .ts with --ts)" />
-                <Flag flag="--project-config-template" desc="Write a typed project hook template to ./orca.config.ts" />
-                <Flag flag="--skip-project-config" desc="Do not prompt to generate a project config template" />
-              </tbody>
-            </table>
-          </CmdSection>
-
-          {/* orca skills */}
-          <CmdSection
-            id="cmd-skills"
-            title="orca skills"
-            usage="orca skills [flags]"
-            desc="List loaded skills and their sources."
-          >
-            <CodeBlock
-              code={`orca skills
-orca skills --config ./orca.config.js`}
-              lang="shell"
-            />
-            <h3 style={S.h3}>Flags</h3>
-            <table style={S.flagTable}>
-              <tbody>
-                <Flag flag="--config <path>" desc="Path to an orca config file" />
-              </tbody>
-            </table>
-          </CmdSection>
-
-          {/* orca help */}
-          <CmdSection id="cmd-help" title="orca help" usage="orca help [command]" desc="Show help for any command.">
-            <CodeBlock
-              code={`orca help
-orca help plan
-orca help pr
-orca --help`}
-              lang="shell"
-            />
-          </CmdSection>
-
-          {/* ══════════════════════════════════════════════
-              CONFIG
-          ══════════════════════════════════════════════ */}
-
-          <div
-            style={{
-              paddingTop: "40px",
-              paddingBottom: "8px",
-              color: "#52525b",
-              fontSize: "11px",
-              fontFamily: "ui-monospace, monospace",
-              letterSpacing: "0.1em",
-              textTransform: "uppercase",
-              borderTop: "1px solid #1f1f1f",
-            }}
-          >
-            Config
-          </div>
-
-          {/* Config discovery */}
-          <section id="config-discovery" style={S.section}>
-            <h2 style={S.h2}>Config Discovery</h2>
-            <p style={S.p}>Orca auto-discovers config in this order — later entries override earlier ones:</p>
-            <ol
-              style={{
-                color: "#a1a1aa",
-                lineHeight: "2",
-                paddingLeft: "20px",
-                margin: "0 0 16px",
-                fontSize: "14px",
-              }}
-            >
-              <li>
-                <code
-                  style={{
-                    fontFamily: "ui-monospace, monospace",
-                    color: "#22d3ee",
-                  }}
-                >
-                  ~/.orca/config.ts
-                </code>{" "}
-                (takes precedence when both exist) or{" "}
-                <code
-                  style={{
-                    fontFamily: "ui-monospace, monospace",
-                    color: "#22d3ee",
-                  }}
-                >
-                  ~/.orca/config.js
-                </code>{" "}
-                — global user config
-              </li>
-              <li>
-                <code
-                  style={{
-                    fontFamily: "ui-monospace, monospace",
-                    color: "#22d3ee",
-                  }}
-                >
-                  ./orca.config.ts
-                </code>{" "}
-                (takes precedence when both exist) or{" "}
-                <code
-                  style={{
-                    fontFamily: "ui-monospace, monospace",
-                    color: "#22d3ee",
-                  }}
-                >
-                  ./orca.config.js
-                </code>{" "}
-                — project config
-              </li>
-              <li>
-                <code
-                  style={{
-                    fontFamily: "ui-monospace, monospace",
-                    color: "#22d3ee",
-                  }}
-                >
-                  --config {"<path>"}
-                </code>{" "}
-                — explicit override
-              </li>
-            </ol>
-            <p style={{ ...S.p, fontSize: "13px" }}>
-              <strong style={{ color: "#e2e8f0" }}>Run state</strong> is stored at{" "}
-              <code
-                style={{
-                  fontFamily: "ui-monospace, monospace",
-                  color: "#22d3ee",
-                }}
-              >
-                {"<runsDir>/<run-id>/status.json"}
-              </code>
-              . Defaults to{" "}
-              <code
-                style={{
-                  fontFamily: "ui-monospace, monospace",
-                  color: "#22d3ee",
-                }}
-              >
-                ~/.orca/runs
-              </code>{" "}
-              unless overridden by{" "}
-              <code
-                style={{
-                  fontFamily: "ui-monospace, monospace",
-                  color: "#22d3ee",
-                }}
-              >
-                ORCA_RUNS_DIR
-              </code>
-              .
+            <CodeBlock code={`orca answer lane_a3f81c02 "Use the staging database"`} lang="shell" />
+            <p style={S.p}>
+              Answering a lane that is not blocked returns <code>invalid_state</code> (exit 4). Only Codex currently
+              supports question parking, and that model behavior remains best-effort.
             </p>
-            <p style={{ ...S.p, fontSize: "13px" }}>
-              Validator caveat:{" "}
-              <code
-                style={{
-                  fontFamily: "ui-monospace, monospace",
-                  color: "#22d3ee",
-                }}
-              >
-                ORCA_SKIP_VALIDATORS=1
-              </code>{" "}
-              forces{" "}
-              <code
-                style={{
-                  fontFamily: "ui-monospace, monospace",
-                  color: "#22d3ee",
-                }}
-              >
-                review.execution.validator.auto
-              </code>{" "}
-              off at runtime.
+          </CmdSection>
+
+          <CmdSection
+            id="cmd-resume"
+            title="orca resume"
+            usage="orca resume <laneId> [--timeout <ms>] <prompt>"
+            description="Start a follow-up turn on the same native session and fail loud if continuity cannot be verified."
+          >
+            <CodeBlock code={`orca resume lane_a3f81c02 "Now add tests for the edge cases"`} lang="shell" />
+            <p style={S.p}>
+              Completed and parked blocked lanes can resume. Failed, killed, and lost lanes cannot. A blocked lane with
+              a live question poller rejects resume to prevent two processes from driving one native session.
+            </p>
+          </CmdSection>
+
+          <CmdSection
+            id="cmd-lanes"
+            title="orca lanes"
+            usage="orca lanes"
+            description="List known lane records newest-first in a kind:list envelope."
+          >
+            <CodeBlock code="orca lanes" lang="shell" />
+          </CmdSection>
+
+          <CmdSection
+            id="cmd-kill"
+            title="orca kill"
+            usage="orca kill <laneId>"
+            description="Terminate a queued, running, or blocked lane using the persisted native process identity."
+          >
+            <CodeBlock code="orca kill lane_a3f81c02" lang="shell" />
+            <p style={S.p}>
+              Killing an already-killed lane is idempotent. Killing a completed, failed, or lost lane returns
+              <code> invalid_state</code>.
+            </p>
+          </CmdSection>
+
+          <CmdSection
+            id="cmd-agents"
+            title="orca agents"
+            usage="orca agents"
+            description="Return the live adapter manifests used for evidence-based routing."
+          >
+            <CodeBlock code={`orca agents | jq '.agents[] | {agent, capabilities, caveats}'`} lang="shell" />
+            <table style={S.table}>
+              <tbody>
+                <DocRow name="codex">
+                  App Server threads, thread-ID continuity, best-effort question parking, optional browser use, and
+                  named task surface.
+                </DocRow>
+                <DocRow name="claude">
+                  One-shot <code>claude -p</code>, session-ID continuity, no question parking, and permissions that can
+                  deny writes by default.
+                </DocRow>
+                <DocRow name="cursor">
+                  Cursor chat continuity, worktree support, no question parking, and a first-output heartbeat for cold
+                  starts that can take 30–100 seconds.
+                </DocRow>
+              </tbody>
+            </table>
+            <p style={S.p}>
+              Model lists and measured overhead can change. Read the manifest instead of hard-coding them.
+            </p>
+          </CmdSection>
+
+          <CmdSection
+            id="cmd-contract"
+            title="orca contract"
+            usage="orca contract [--schema envelope|event|manifest]"
+            description="Return the versioned command contract, exit codes, notes, and JSON Schemas."
+          >
+            <CodeBlock
+              code={`orca contract
+orca contract --schema envelope
+orca contract --schema event
+orca contract --schema manifest`}
+              lang="shell"
+            />
+            <div style={S.note}>If this page and an installed Orca disagree, the installed contract wins.</div>
+          </CmdSection>
+
+          <SectionLabel>Contract</SectionLabel>
+
+          <section id="question-flow" style={S.section}>
+            <h2 style={S.h2}>Blocked Question Flow</h2>
+            <CodeBlock
+              code={`# Terminal states also satisfy this wait; inspect status.
+orca inspect lane_a3f81c02 --wait-for blocked --timeout 600000
+
+orca answer lane_a3f81c02 "Postgres"
+orca resume lane_a3f81c02 "Continue with that answer"`}
+              lang="shell"
+            />
+            <p style={S.p}>
+              <code>blocked</code> is a successful state: <code>ok:true</code>, exit 0. It means the turn stopped at an
+              explicit input boundary, not that the adapter failed.
             </p>
           </section>
 
-          {/* Project instruction files */}
-          <section id="config-project-instructions" style={S.section}>
-            <h2 style={S.h2}>Project Instruction Files</h2>
-            <p style={S.p}>During planning, Orca automatically injects project instruction files when present:</p>
-            <ol
-              style={{
-                color: "#a1a1aa",
-                lineHeight: "2",
-                paddingLeft: "20px",
-                margin: "0 0 16px",
-                fontSize: "14px",
-              }}
-            >
-              <li>
-                <code
-                  style={{
-                    fontFamily: "ui-monospace, monospace",
-                    color: "#22d3ee",
-                  }}
-                >
-                  AGENTS.md
-                </code>
-              </li>
-            </ol>
-            <p style={{ ...S.p, fontSize: "13px" }}>
-              Orca resolves the project root from the nearest{" "}
-              <code
-                style={{
-                  fontFamily: "ui-monospace, monospace",
-                  color: "#22d3ee",
-                }}
-              >
-                .git
-              </code>{" "}
-              and injects AGENTS.md when present.
-            </p>
-          </section>
-
-          {/* Config options */}
-          <section id="config-options" style={S.section}>
-            <h2 style={S.h2}>Config Options</h2>
-            <p style={S.p}>Full example — all options are optional:</p>
-            <CodeBlock
-              code={`// orca.config.ts
-import { defineOrcaConfig } from "orcastrator";
-
-export default defineOrcaConfig({
-  executor: "codex",
-  openaiApiKey: process.env.OPENAI_API_KEY,
-  runsDir: "./.orca/runs",
-  sessionLogs: "./session-logs",
-  skills: ["./.orca/skills"],
-  maxRetries: 1,
-
-  planner: {
-    agent: "auto",
-    router: { model: "gpt-5.3-codex-spark" },
-  },
-  claude: {
-    command: "claude",
-    model: "claude-opus-4-7",
-    effort: "high",
-    timeoutMs: 300000,
-  },
-  codex: {
-    enabled: true,
-    model: "gpt-5.5",
-    effort: "high",
-    thinkingLevel: {
-      decision: "low",
-      planning: "high",
-      execution: "medium",
-    },
-    command: "codex",
-    timeoutMs: 300000,
-    multiAgent: false,
-  },
-  pr: { enabled: true, requireConfirmation: true },
-  review: {
-    // Deprecated aliases: review.enabled / review.onInvalid
-    plan: { enabled: true, onInvalid: "fail" },
-    execution: {
-      enabled: true,
-      maxCycles: 2,
-      onFindings: "auto_fix",
-      validator: { auto: true },
-    },
-  },
-});`}
-              lang="ts"
-            />
-            <h3 style={S.h3}>Field reference</h3>
-            <table style={S.flagTable}>
+          <section id="envelopes" style={S.section}>
+            <h2 style={S.h2}>Envelope Semantics</h2>
+            <p style={S.p}>Three independent axes prevent protocol delivery from being mistaken for task success:</p>
+            <table style={S.table}>
               <tbody>
-                <Flag
-                  flag="Top-level"
-                  desc="executor, openaiApiKey, runsDir, sessionLogs, skills, maxRetries, planner, claude, codex, hooks, hookCommands, pr, review"
-                />
-                <Flag
-                  flag="maxRetries"
-                  desc="Accepted OrcaConfig field; current planner-generated task retry limits remain fixed by task graph contracts"
-                />
-                <Flag flag="planner.*" desc="agent, router.model. router is only valid when agent is auto" />
-                <Flag
-                  flag="claude.*"
-                  desc="command, model, effort, timeoutMs. Claude planning uses local Claude Code through claude -p"
-                />
-                <Flag
-                  flag="codex.*"
-                  desc="enabled, model, effort, thinkingLevel.decision|planning|review|execution, command, timeoutMs, multiAgent, perCwdExtraUserRoots"
-                />
-                <Flag flag="pr.*" desc="enabled, requireConfirmation" />
-                <Flag flag="review.plan.*" desc="enabled, onInvalid" />
-                <Flag
-                  flag="review.execution.*"
-                  desc="enabled, maxCycles, onFindings, validator.auto, validator.commands, prompt"
-                />
-                <Flag flag="Deprecated aliases" desc="review.enabled, review.onInvalid" />
+                <DocRow name="delivery">Whether the native agent acknowledged the turn.</DocRow>
+                <DocRow name="nativeStatus">What the native protocol or process reported.</DocRow>
+                <DocRow name="semanticOutcome">
+                  An explicit validator result. Without a validator it stays unknown; Orca never infers correctness from
+                  prose.
+                </DocRow>
               </tbody>
             </table>
-            <p style={{ ...S.p, fontSize: "13px", marginTop: "12px" }}>
-              Planner routing has three JSON-readable shapes:
-            </p>
             <CodeBlock
-              code={`[
-  { "planner": { "agent": "auto", "router": { "model": "gpt-5.3-codex-spark" } } },
-  { "planner": { "agent": "claude" } },
-  { "planner": { "agent": "codex" } }
-]`}
+              code={`{
+  "v": 1,
+  "kind": "lane",
+  "ok": true,
+  "status": "completed",
+  "lane": {
+    "id": "lane_a3f81c02",
+    "agent": "codex",
+    "surface": "task",
+    "agentSessionId": "019f..."
+  },
+  "delivery": "confirmed",
+  "nativeStatus": "completed",
+  "semanticOutcome": "unknown",
+  "result": { "text": "..." },
+  "timing": { "wallMs": 6557, "startupMs": 2050 }
+}`}
               lang="json"
             />
-            <p style={{ ...S.p, fontSize: "13px", marginTop: "12px" }}>
-              Forced Claude or Codex planning bypasses the router, so those configs should not include{" "}
-              <code
-                style={{
-                  fontFamily: "ui-monospace, monospace",
-                  color: "#22d3ee",
-                }}
-              >
-                router
-              </code>
-              . Claude planning shells out to{" "}
-              <code
-                style={{
-                  fontFamily: "ui-monospace, monospace",
-                  color: "#22d3ee",
-                }}
-              >
-                claude -p
-              </code>
-              ; Codex still executes tasks and runs reviews.
-            </p>
-            <p style={{ ...S.p, fontSize: "13px", marginTop: "12px" }}>
-              Thinking-level controls are explicit: use
-              <code
-                style={{
-                  fontFamily: "ui-monospace, monospace",
-                  color: "#22d3ee",
-                }}
-              >
-                {" codex.thinkingLevel.decision|planning|review|execution "}
-              </code>{" "}
-              with canonical values
-              <code
-                style={{
-                  fontFamily: "ui-monospace, monospace",
-                  color: "#22d3ee",
-                }}
-              >
-                {" low|medium|high|xhigh "}
-              </code>
-              .
-            </p>
-            <p style={{ ...S.p, fontSize: "13px" }}>
-              Model IDs are strongly typed for documented provider models, with{" "}
-              <code
-                style={{
-                  fontFamily: "ui-monospace, monospace",
-                  color: "#22d3ee",
-                }}
-              >
-                customModel("...")
-              </code>{" "}
-              for private, unreleased, or provider-specific IDs.
-            </p>
-            <p style={{ ...S.p, fontSize: "13px" }}>
-              When updating model lists, check{" "}
-              <a href="https://platform.openai.com/docs/models" style={{ color: "#93c5fd", textDecoration: "none" }}>
-                OpenAI models
-              </a>
-              {", "}
-              <a
-                href="https://docs.anthropic.com/en/docs/about-claude/models"
-                style={{ color: "#93c5fd", textDecoration: "none" }}
-              >
-                Anthropic Claude models
-              </a>
-              {", and "}
-              <a
-                href="https://docs.anthropic.com/en/docs/claude-code/model-config"
-                style={{ color: "#93c5fd", textDecoration: "none" }}
-              >
-                Claude Code model config
-              </a>
-              .
-            </p>
-            <p style={{ ...S.p, fontSize: "13px" }}>
-              On Codex session startup, Orca calls app-server
-              <code
-                style={{
-                  fontFamily: "ui-monospace, monospace",
-                  color: "#22d3ee",
-                }}
-              >
-                {" skills/list "}
-              </code>{" "}
-              with
-              <code
-                style={{
-                  fontFamily: "ui-monospace, monospace",
-                  color: "#22d3ee",
-                }}
-              >
-                {" cwds: [cwd], forceReload: true "}
-              </code>{" "}
-              and optional
-              <code
-                style={{
-                  fontFamily: "ui-monospace, monospace",
-                  color: "#22d3ee",
-                }}
-              >
-                {" perCwdExtraUserRoots "}
-              </code>
-              .
-            </p>
+            <ul style={S.list}>
+              <li>
+                A command never exits 0 with <code>ok:false</code>.
+              </li>
+              <li>
+                <code>usage</code> and <code>timing</code> cover one dispatch or resume turn, not lane history.
+              </li>
+              <li>
+                Continuity proves session identity, not semantic compliance. Read <code>status</code> and{" "}
+                <code>result.text</code>.
+              </li>
+              <li>stderr is diagnostic and non-contractual; stdout carries the handle and envelope.</li>
+            </ul>
           </section>
 
-          {/* Hooks */}
-          <section id="config-hooks" style={S.section}>
-            <h2 style={S.h2}>Hooks</h2>
-            <p style={S.p}>
-              Function hooks are primary (
-              <code
-                style={{
-                  fontFamily: "ui-monospace, monospace",
-                  color: "#22d3ee",
-                  fontSize: "13px",
-                }}
-              >
-                hooks
-              </code>
-              ) and are strongly typed with `defineOrcaConfig`. Command hooks (
-              <code
-                style={{
-                  fontFamily: "ui-monospace, monospace",
-                  color: "#22d3ee",
-                  fontSize: "13px",
-                }}
-              >
-                hookCommands
-              </code>
-              ) are supported via config or CLI{" "}
-              <code
-                style={{
-                  fontFamily: "ui-monospace, monospace",
-                  color: "#22d3ee",
-                  fontSize: "13px",
-                }}
-              >
-                --on-...
-              </code>{" "}
-              flags.
-            </p>
-            <table style={S.flagTable}>
+          <section id="exit-codes" style={S.section}>
+            <h2 style={S.h2}>Exit Codes</h2>
+            <table style={S.table}>
               <tbody>
-                <Flag flag="onMilestone" desc="Fired at each milestone checkpoint" />
-                <Flag flag="onQuestion" desc="Fired when Codex requests user input for the current turn" />
-                <Flag flag="onTaskComplete" desc="Fired when a single task completes successfully" />
-                <Flag flag="onTaskFail" desc="Fired when a task fails" />
-                <Flag flag="onInvalidPlan" desc="Fired when planner/review output is invalid" />
-                <Flag flag="onFindings" desc="Fired when post-exec review reports findings" />
-                <Flag flag="onComplete" desc="Fired when the entire run completes successfully" />
-                <Flag flag="onError" desc="Fired on run failure and on hook-dispatch/command-hook failures" />
+                <DocRow name="0">
+                  Success, including <code>status:&quot;blocked&quot;</code>.
+                </DocRow>
+                <DocRow name="2">
+                  <code>usage_error</code> — malformed command line.
+                </DocRow>
+                <DocRow name="3">
+                  <code>agent_unavailable</code>, <code>adapter_error</code>, or <code>agent_failed</code>.
+                </DocRow>
+                <DocRow name="4">
+                  <code>invalid_state</code>, <code>lane_not_found</code>, or <code>continuity_unverified</code>.
+                </DocRow>
+                <DocRow name="5">
+                  <code>timeout</code> — the turn deadline was exceeded.
+                </DocRow>
               </tbody>
             </table>
-            <p style={{ ...S.p, fontSize: "13px", marginTop: "16px" }}>
-              Hook handler context is deterministic:{" "}
-              <code
-                style={{
-                  fontFamily: "ui-monospace, monospace",
-                  color: "#22d3ee",
-                }}
-              >
-                {"{ cwd, pid, invokedAt }"}
-              </code>
-              .
-            </p>
-            <p style={{ ...S.p, fontSize: "13px" }}>Command hooks receive structured event payload JSON on stdin.</p>
-            <h3 style={S.h3}>Interactive hook flow</h3>
-            <p style={{ ...S.p, fontSize: "13px" }}>
-              If a run needs operator input, Orca moves the run into
-              <code
-                style={{
-                  fontFamily: "ui-monospace, monospace",
-                  color: "#22d3ee",
-                }}
-              >
-                {" waiting_for_answer "}
-              </code>
-              and pauses execution until an answer is submitted.
-            </p>
-            <CodeBlock
-              code={`# 1) Inspect the blocked run
-orca status --run <run-id>
-
-# 2) Submit the answer
-orca answer <run-id> "yes, use migration A"`}
-              lang="shell"
-            />
-            <p
-              style={{
-                ...S.p,
-                fontSize: "13px",
-                color: "#71717a",
-                marginTop: "8px",
-              }}
-            >
-              See{" "}
-              <a href="#types" style={{ color: "#93c5fd", textDecoration: "none" }}>
-                Types ↓
-              </a>{" "}
-              for full hook event and context contracts.
-            </p>
-            <CodeBlock
-              code={`# Via config (function hooks + command hooks)
-import { defineOrcaConfig } from "orcastrator";
-import type { HookEventMap, HookHandlerContext } from "orcastrator/types";
-
-export default defineOrcaConfig({
-  hooks: {
-    onTaskComplete: async (event, context) => {
-      const _typedEvent: HookEventMap["onTaskComplete"] = event;
-      const _typedContext: HookHandlerContext = context;
-      console.log(\`task done: \${event.taskName}\`, context.cwd);
-    },
-  },
-  hookCommands: {
-    onTaskComplete: "node ./scripts/on-task-complete.mjs",
-  },
-});
-
-# ./scripts/on-task-complete.mjs
-# let s = ""; process.stdin.on("data", d => s += d);
-# process.stdin.on("end", () => {
-#   const payload = JSON.parse(s);
-#   console.log(\`done: \${payload.taskName}\`);
-# });`}
-              lang="ts"
-            />
           </section>
 
-          {/* Multi-agent */}
-          <section id="config-multiagent" style={S.section}>
-            <h2 style={S.h2}>Multi-agent Mode</h2>
+          <section id="storage" style={S.section}>
+            <h2 style={S.h2}>Durable State</h2>
             <p style={S.p}>
-              Codex supports experimental multi-agent workflows where it can spawn parallel sub-agents for complex
-              tasks. Off by default because enabling it modifies your global{" "}
-              <code
-                style={{
-                  fontFamily: "ui-monospace, monospace",
-                  color: "#22d3ee",
-                  fontSize: "13px",
-                }}
-              >
-                ~/.codex/config.toml
-              </code>
-              .
+              Lane state lives under <code>${"${ORCA_HOME:-~/.orca}"}/lanes/&lt;laneId&gt;/</code>. Set
+              <code> ORCA_HOME</code> to isolate tests and automation from personal history.
             </p>
-            <div style={S.note}>
-              ⚠️ Enabling multi-agent mode writes{" "}
-              <code style={{ fontFamily: "ui-monospace, monospace" }}>multi_agent = true</code> to your global Codex
-              config. If you already have it enabled there, orca picks it up automatically.
-            </div>
             <CodeBlock
-              code={`// orca.config.js
-export default {
-  codex: { multiAgent: true }
-};`}
-              lang="js"
+              code={`lane.json       # durable lane record
+events.ndjson   # append-only evidence stream
+answer.txt      # transient blocked-answer handoff`}
+              lang="text"
             />
-
-            {/* Run ID format */}
-            <hr style={S.divider} />
-            <h3
-              style={{
-                ...S.h3,
-                marginTop: "0",
-                color: "#71717a",
-                fontSize: "13px",
-                fontWeight: 400,
-              }}
-            >
-              Run ID format
-            </h3>
-            <p style={{ ...S.p, fontSize: "13px" }}>
-              Run IDs are generated as{" "}
-              <code
-                style={{
-                  fontFamily: "ui-monospace, monospace",
-                  color: "#22d3ee",
-                }}
-              >
-                {"<slug>-<unix-ms>-<hex4>"}
-              </code>
-              :
-            </p>
-            <CodeBlock code="feature-auth-1766228123456-1a2b" />
           </section>
 
-          {/* Agent Skill */}
+          <section id="legacy" style={S.section}>
+            <h2 style={S.h2}>Legacy Compatibility</h2>
+            <p style={S.p}>
+              Graph-era run, plan, status, list, cancel, setup/config, and PR commands can still appear in root help.
+              They remain compatibility surfaces, not the canonical lane architecture.
+            </p>
+            <p style={S.p}>
+              The names <code>answer</code> and <code>resume</code> exist in both surfaces. Orca selects lane handling
+              when the first argument starts with <code>lane_</code>—all lane IDs do—or when lane help is requested.
+              Other values route to legacy commands.
+            </p>
+          </section>
+
           <section id="agent-skill" style={S.section}>
             <h2 style={S.h2}>Agent Skill</h2>
             <p style={S.p}>
-              Drop this SKILL.md into your agent&apos;s skills directory to give it native Orca support.
+              Give an agent a compact operator guide. It starts with live contract discovery and keeps routing,
+              question, continuity, and task-surface caveats close to the commands.
             </p>
             <AgentSkillCard />
           </section>
 
-          {/* Types */}
-          <section id="types" style={S.section}>
-            <h2 style={S.h2}>Types</h2>
-            <p style={S.p}>
-              Full TypeScript contracts for hook events and context. Import directly from{" "}
-              <a
-                href="https://github.com/ratley/orca/blob/master/src/types/index.ts"
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{
-                  fontFamily: "ui-monospace, monospace",
-                  color: "#22d3ee",
-                  textDecoration: "none",
-                }}
-              >
-                orcastrator/types ↗
-              </a>
-              .
-            </p>
-            <h3 style={{ ...S.h3, marginTop: "24px" }}>HookHandlerContext</h3>
-            <p style={S.p}>Passed as the second argument to every function hook.</p>
-            <CodeBlock
-              code={`type HookHandlerContext = {
-  cwd: string;       // working directory of the orca run
-  pid: number;       // process id
-  invokedAt: string; // ISO timestamp of invocation
-};`}
-              lang="ts"
-            />
-            <h3 style={{ ...S.h3, marginTop: "24px" }}>BaseHookEvent</h3>
-            <p style={S.p}>Base shape shared by all hook events. Hook-specific events extend this.</p>
-            <CodeBlock
-              code={`type BaseHookEvent = {
-  runId: RunId;
-  message: string;
-  timestamp: string;
-  taskId?: string;
-  taskName?: string;
-  error?: string;
-  metadata?: Record<string, string | number | boolean | null>;
-};`}
-              lang="ts"
-            />
-            <h3 style={{ ...S.h3, marginTop: "24px" }}>HookEventMap</h3>
-            <p style={S.p}>Maps each hook name to its full event type.</p>
-            <CodeBlock
-              code={`type HookEventMap = {
-  onMilestone:    BaseHookEvent & { hook: "onMilestone" };
-  onQuestion:     BaseHookEvent & {
-    hook: "onQuestion";
-    requestId: string | number;
-    threadId: string;
-    turnId: string;
-    itemId: string;
-    questions: Array<{
-      header: string;
-      id: string;
-      question: string;
-      isOther: boolean;
-      isSecret: boolean;
-      options?: Array<{ label: string; description: string }> | null;
-    }>;
-  };
-  onTaskComplete: BaseHookEvent & { hook: "onTaskComplete"; taskId: string; taskName: string };
-  onTaskFail:     BaseHookEvent & { hook: "onTaskFail"; taskId: string; taskName: string; error: string };
-  onInvalidPlan:  BaseHookEvent & { hook: "onInvalidPlan"; error: string };
-  onFindings:     BaseHookEvent & { hook: "onFindings" };
-  onComplete:     BaseHookEvent & { hook: "onComplete" };
-  onError:        BaseHookEvent & { hook: "onError"; error: string };
-};`}
-              lang="ts"
-            />
-            <h3 style={{ ...S.h3, marginTop: "24px" }}>Example payload (JSON)</h3>
-            <p style={S.p}>Shape of the JSON written to stdin for command hooks.</p>
-            <CodeBlock
-              code={`{
-  "hook": "onTaskComplete",
-  "runId": "feature-auth-1766228123456-1a2b",
-  "message": "Task completed",
-  "timestamp": "2026-02-22T12:00:00.000Z",
-  "taskId": "task-2",
-  "taskName": "Apply migration"
-}`}
-              lang="json"
-            />
-          </section>
-
-          {/* Footer */}
           <footer
             style={{
-              borderTop: "1px solid #1f1f1f",
-              padding: "32px 0",
+              padding: "28px 0 48px",
               color: "#3f3f46",
               fontSize: "12px",
               fontFamily: "ui-monospace, monospace",
-              display: "flex",
-              justifyContent: "space-between",
             }}
           >
-            <span>orca — orcastrator</span>
-            <a
-              href="https://github.com/ratley/orca"
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{ color: "#3f3f46", textDecoration: "none" }}
-            >
-              github ↗
-            </a>
+            orcastrator · observable agent lanes · orca/v1
           </footer>
         </main>
       </div>
-
-      {/* Sidebar hide on mobile */}
-      <style>{`
-        @media (max-width: 640px) {
-          .sidebar-wrapper { display: none !important; }
-          main { padding: 0 20px !important; }
-        }
-        nav a:hover { color: #22d3ee !important; }
-        header a:hover { color: #e2e8f0 !important; }
-      `}</style>
     </>
   );
 }
