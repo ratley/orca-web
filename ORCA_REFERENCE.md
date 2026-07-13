@@ -1,138 +1,312 @@
-# orca
+# Orca CLI Reference
 
-Coordinated agent run harness.
+Orca is an observable agent-lane harness. Callers dispatch work to Codex,
+Claude, or Cursor and receive durable, machine-readable state. Orca provides a
+substrate for orchestrators; it does not plan, decompose, route, or judge lane
+work itself.
+
+This reference is validated against the built `orca contract` output. When
+documentation and the installed CLI disagree, trust `orca contract`.
 
 ## Install
 
-```bash
+```sh
 npm install -g orcastrator
+# pnpm add -g orcastrator
+# yarn global add orcastrator
+# bun add -g orcastrator
 ```
 
-## Run Management
+## Discover the Contract
 
-Orca starts each run with a lightweight planning-necessity decision (`needsPlan?`). Multi-step work goes through full planning; simple focused work can execute directly as one task.
-
-```bash
-orca status                  # list all runs (default)
-orca status --last           # most recent run details
-orca status --run <run-id>   # specific run details
-
-orca resume --last
-orca resume --run <run-id>
-orca resume --run <run-id> --codex-only --codex-effort high
-
-orca cancel --last
-orca cancel --run <run-id>
-
-orca answer <run-id> "yes, use migration A"
+```sh
+orca contract
+orca agents
+orca dispatch --help
 ```
 
-## PR Workflow
+Every lane verb prints exactly one JSON envelope as its final stdout line.
+`dispatch` first prints a small handle line so a caller can capture the lane ID
+before native agent work begins. `--help` and `-h` are the documented
+human-readable exceptions.
 
-Canonical public flow:
+## Quick Start
 
-```bash
-orca pr draft --run <run-id>
-orca pr create --run <run-id>
-orca pr publish --run <run-id>
-orca pr status --run <run-id>
+```sh
+# Internal worker lane (default surface)
+orca dispatch --agent codex --cwd . \
+  "Review the current diff and report actionable findings"
+
+# Named, user-followable Codex task
+orca dispatch --agent codex --surface task \
+  --label "HAPPY-123 — Fix API" \
+  --cwd /path/to/existing/worktree \
+  "Implement HAPPY-123 and run its focused tests"
 ```
 
-`orca pr publish` run selection behavior:
-- TTY: if `--run`/`--last` omitted, interactive picker is shown.
-- non-TTY: pass `--run` or `--last`.
+The final envelope includes Orca's lane ID and, after native binding, the
+agent's session/thread ID.
 
-## Config Discovery / Precedence
+## Dispatch Surfaces
 
-Load order (later overrides earlier):
-1. global config: `~/.orca/config.ts` then `~/.orca/config.js` (`.ts` takes precedence when both exist)
-2. project config: `./orca.config.ts` then `./orca.config.js` (`.ts` takes precedence when both exist)
-3. `--config <path>`
+### `lane` (default)
 
-## CLI Flags Reference
+An internal worker intended to report its result back to the coordinating
+agent or script. The lane remains durable so it can be inspected and resumed.
 
-`orca` / `orca run`:
-- `[task]`, `--task <text>`, `-p, --prompt <text>`
-- `--spec <path>`, `--plan <path>`, `--config <path>`
-- `--codex-only`
-- `--codex-effort <low|medium|high|xhigh>`
-- `--on-milestone <cmd>`
-- `--on-task-complete <cmd>`
-- `--on-task-fail <cmd>`
-- `--on-invalid-plan <cmd>`
-- `--on-findings <cmd>`
-- `--on-complete <cmd>`
-- `--on-error <cmd>`
+### `task` (Codex only)
 
-`orca plan`:
-- `--spec <path>`
-- `--config <path>`
-- `--on-milestone <cmd>`
-- `--on-error <cmd>`
+A deliberately named, durable Codex thread intended for direct user follow-up.
+It requires a non-empty `--label`, which Orca applies as the native thread
+name.
 
-`orca status`: `--run <run-id>`, `--last`, `--config <path>`
+`--surface task` does not create a Codex Desktop-managed project, worktree, or
+handoff environment. Supply an existing checkout or worktree with `--cwd`.
+Persistent lane threads may also appear in Codex Desktop: the requested
+`user`/`subagent` source is a host-normalized hint, not a visibility filter.
 
-`orca resume`: `--run <run-id>`, `--last`, `--config <path>`, `--codex-only`, `--codex-effort <low|medium|high|xhigh>`
+## Commands
 
-`orca cancel`: `--run <run-id>`, `--last`, `--config <path>`
+### `orca dispatch`
 
-`orca answer`: `[run-id] [answer]`, `--run <id>`
+```text
+orca dispatch --agent <agent> [--surface lane|task] [--model <model>]
+  [--cwd <dir>] [--label <label>] [--timeout <ms>] <prompt>
+```
 
-`orca list`: `--config <path>`
+Creates a lane and synchronously drives it until the turn is completed, failed,
+killed, timed out, or blocked on a question.
 
-`orca pr draft|create|publish|status`: `--run <run-id>`, `--last`, `--config <path>` (accepted for compatibility; currently unused by PR command run resolution)
+| Option                 | Meaning                                                       |
+| ---------------------- | ------------------------------------------------------------- |
+| `--agent <agent>`      | Required adapter: `codex`, `claude`, or `cursor`              |
+| `--surface lane\|task` | Ownership surface; defaults to `lane`                         |
+| `--model <model>`      | Adapter-specific model override                               |
+| `--cwd <dir>`          | Agent working directory; defaults to the current directory    |
+| `--label <label>`      | Orca label; required native task title for `--surface task`   |
+| `--timeout <ms>`       | One deadline shared by connect, session binding, and the turn |
 
-`orca setup`:
-- `--openai-key <key>`
-- `--global`
-- `--project`
-- `--project-config-template`
-- `--skip-project-config`
+Output order:
 
-`orca skills`: `--config <path>`
+```json
+{"v":1,"kind":"handle","laneId":"lane_a3f81c02","agent":"codex"}
+{"v":1,"kind":"lane","ok":true,"status":"completed","lane":{"id":"lane_a3f81c02","agent":"codex","surface":"lane"},"delivery":"confirmed","nativeStatus":"completed","semanticOutcome":"unknown","result":{"text":"..."}}
+```
 
-`orca help`: `[command]`
+Harness diagnostics can appear on stderr during a successful run. Only stdout
+carries the contractual handle and envelope.
 
-## Hooks + Types
+### `orca inspect`
 
-Hook names:
-- `onMilestone`
-- `onTaskComplete`
-- `onTaskFail`
-- `onInvalidPlan`
-- `onFindings`
-- `onComplete`
-- `onError`
+```text
+orca inspect <laneId> [--follow] [--since <seq>]
+  [--wait-for blocked|done] [--timeout <ms>]
+```
 
-Hook contract:
-- Function hooks (`hooks`) receive `(event, context)`.
-- `context` is `{ cwd, pid, invokedAt }`.
-- Command hooks (`hookCommands` and CLI `--on-*`) receive JSON via stdin.
-- No `ORCA_*` hook payload env-var framing.
-- `onError` fires for run errors and hook-dispatch/command-hook failures.
+Reports current lane state and stored events.
 
-## OrcaConfig Reference (complete)
+```sh
+orca inspect lane_a3f81c02
+orca inspect lane_a3f81c02 --since 7
+orca inspect lane_a3f81c02 --follow
+orca inspect lane_a3f81c02 --wait-for blocked --timeout 600000
+```
 
-Top-level: `executor`, `openaiApiKey`, `runsDir`, `sessionLogs`, `skills`, `maxRetries`, `codex`, `hooks`, `hookCommands`, `pr`, `review`
+`--since N` emits events whose sequence is greater than `N`. Terminal states
+also satisfy `--wait-for blocked`, so a wait does not hang when the agent
+finishes without asking a question. Read the returned `status` to distinguish
+`blocked` from a terminal result.
 
-`maxRetries` is an accepted OrcaConfig field; current planner-generated task retry limits are still fixed by task graph contracts.
+### `orca answer`
 
+```text
+orca answer <laneId> <text>
+```
 
-`codex.*`: `enabled`, `model`, `effort`, `thinkingLevel.decision|planning|execution`, `command`, `timeoutMs`, `multiAgent`, `perCwdExtraUserRoots`
+Submits an answer to a blocked lane. Answering a lane that is not blocked
+returns `invalid_state` (exit 4).
 
-`pr.*`: `enabled`, `requireConfirmation`
+```sh
+orca answer lane_a3f81c02 "Use the staging database"
+```
 
-`review.plan.*`: `enabled`, `onInvalid`
+Only Codex currently supports tool-mediated question parking. The capability
+is best-effort: a model can still place a question in result prose and complete
+the lane instead of blocking.
 
-`review.execution.*`: `enabled`, `maxCycles`, `onFindings`, `validator.auto`, `validator.commands`, `prompt`
+### `orca resume`
 
-Thinking-level controls use `codex.thinkingLevel.decision|planning|execution` with canonical values `low|medium|high|xhigh`.
+```text
+orca resume <laneId> [--timeout <ms>] <prompt>
+```
 
-Codex app-server integration: at session startup Orca calls `skills/list` with `cwds: [cwd]`, `forceReload: true`, and optional `codex.perCwdExtraUserRoots` mappings.
+Starts a new turn on the same native session. Orca verifies continuity or
+returns `continuity_unverified` (exit 4).
 
-Deprecated compatibility aliases:
-- `review.enabled`
-- `review.onInvalid`
+```sh
+orca resume lane_a3f81c02 "Now add tests for the edge cases"
+```
 
-Validator caveat:
-- `ORCA_SKIP_VALIDATORS=1` forces `review.execution.validator.auto` off.
+Completed lanes and parked blocked lanes can be resumed. Failed, killed, and
+lost lanes cannot. A blocked lane with a live question poller rejects resume to
+prevent two processes from driving the same native session.
+
+### `orca lanes`
+
+```sh
+orca lanes
+```
+
+Lists known lane records newest-first in a `kind:"list"` envelope.
+
+### `orca kill`
+
+```text
+orca kill <laneId>
+```
+
+Terminates a queued, running, or blocked lane. Killing an already-killed lane
+is idempotent. Killing a completed, failed, or lost lane returns
+`invalid_state`.
+
+### `orca agents`
+
+```sh
+orca agents
+```
+
+Returns adapter manifests with resume, kill, question, continuity, browser,
+worktree, model, measured-overhead, and caveat declarations.
+
+| Adapter | Continuity                       | Questions           | Important behavior                                                  |
+| ------- | -------------------------------- | ------------------- | ------------------------------------------------------------------- |
+| Codex   | `thread-id-match`                | Best-effort parking | App Server thread; supports named `task` surface                    |
+| Claude  | `session-id-match`               | No parking          | One-shot `claude -p`; default permissions can deny writes           |
+| Cursor  | `session-id-match`, `nonce-echo` | No parking          | Cold starts can take 30–100s; first native output emits a heartbeat |
+
+Use the live manifest rather than hard-coding model lists or assumptions:
+
+```sh
+orca agents | jq '.agents[] | {agent, capabilities, caveats}'
+```
+
+### `orca contract`
+
+```text
+orca contract [--schema envelope|event|manifest]
+```
+
+Returns the versioned `orca/v1` contract: command synopses, exit codes, notes,
+and JSON Schemas for envelopes, events, manifests, and dispatch handles.
+
+```sh
+orca contract
+orca contract --schema envelope
+orca contract --schema event
+orca contract --schema manifest
+```
+
+## Blocked Question Flow
+
+```sh
+# Terminal states also satisfy this wait; inspect the returned status.
+orca inspect lane_a3f81c02 --wait-for blocked --timeout 600000
+
+orca answer lane_a3f81c02 "Postgres"
+orca resume lane_a3f81c02 "Continue with that answer"
+```
+
+`blocked` is a successful state (`ok:true`, exit 0), not an agent failure.
+
+## Envelope Semantics
+
+The three outcome axes are independent:
+
+- `delivery`: whether the native agent acknowledged the turn.
+- `nativeStatus`: native protocol/process state.
+- `semanticOutcome`: explicit validation result. Without a validator, it stays
+  `unknown`; Orca never infers semantic correctness from prose.
+
+Common fields:
+
+```ts
+type Envelope = {
+  v: 1;
+  kind: "lane" | "list" | "agents" | "contract" | "error";
+  ok: boolean;
+  status: "queued" | "running" | "blocked" | "completed" | "failed" | "killed" | "lost";
+  code?:
+    | "usage_error"
+    | "invalid_state"
+    | "lane_not_found"
+    | "continuity_unverified"
+    | "agent_unavailable"
+    | "adapter_error"
+    | "agent_failed"
+    | "timeout";
+  lane?: {
+    id: string;
+    agent: string;
+    surface?: "lane" | "task";
+    cwd: string;
+    label?: string;
+    agentSessionId?: string;
+  };
+  delivery: "not_sent" | "confirmed" | "unknown";
+  nativeStatus: "running" | "completed" | "failed" | "interrupted" | "unknown";
+  semanticOutcome: "unknown" | "validated_pass" | "validated_fail";
+  blocked?: { questions: Array<{ id: string; question: string; options?: string[] }> };
+  result?: { text: string; artifacts?: string[] };
+  usage?: { inputTokens?: number; outputTokens?: number; costUsd?: number };
+  timing?: { wallMs: number; apiMs?: number; startupMs?: number };
+  continuity?: {
+    verified: boolean;
+    method: "thread-id-match" | "session-id-match" | "nonce-echo";
+    detail?: string;
+  };
+  next?: string[];
+  warnings?: string[];
+  error?: { message: string; remediation?: string };
+};
+```
+
+`usage` and `timing` cover the single dispatch or resume turn, not cumulative
+lane history. A command never exits 0 with `ok:false`.
+
+## Exit Codes
+
+| Exit | Meaning                               | Error codes                                                |
+| ---- | ------------------------------------- | ---------------------------------------------------------- |
+| `0`  | Success, including `status:"blocked"` | —                                                          |
+| `2`  | Malformed command line                | `usage_error`                                              |
+| `3`  | Adapter or agent failure              | `agent_unavailable`, `adapter_error`, `agent_failed`       |
+| `4`  | Invalid lane operation or continuity  | `invalid_state`, `lane_not_found`, `continuity_unverified` |
+| `5`  | Deadline exceeded                     | `timeout`                                                  |
+
+## Durable State
+
+Lane state lives under `${ORCA_HOME:-~/.orca}/lanes/<laneId>/`:
+
+```text
+lane.json       durable lane record
+events.ndjson   append-only evidence stream
+answer.txt      transient blocked-question answer handoff
+```
+
+Set `ORCA_HOME` to isolate tests or automation from personal lane history.
+
+## Legacy Compatibility
+
+Graph-era `run`, `plan`, `status`, `list`, `cancel`, setup/config, and PR
+commands can still appear in root help for compatibility. They are not the
+canonical lane architecture.
+
+The command names `answer` and `resume` exist in both surfaces. Orca selects
+the lane implementation when the first argument starts with `lane_` (all lane
+IDs do), or when lane help is requested. Other values route to the legacy
+commands.
+
+## Source
+
+- Package and source: <https://github.com/ratley/orca>
+- Public docs: <https://orcastrator.dev>

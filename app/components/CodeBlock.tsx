@@ -39,9 +39,7 @@ function highlightInline(line: string, lang?: string): React.ReactNode[] {
     return [tokenSpan(line, `shell-${line.length}`, "#e2e8f0")];
   }
 
-  const tokens = line
-    .split(/(\s+|"[^"]*"|'[^']*'|`[^`]*`|\/\/.*$|[{}()[\];,.:=<>])/g)
-    .filter(Boolean);
+  const tokens = line.split(/(\s+|"[^"]*"|'[^']*'|`[^`]*`|\/\/.*$|[{}()[\];,.:=<>])/g).filter(Boolean);
 
   const nodes: React.ReactNode[] = [];
   let cursor = 0;

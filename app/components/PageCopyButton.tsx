@@ -1,14 +1,20 @@
 "use client";
 
 import { useState } from "react";
-import { PAGE_MARKDOWN } from "../lib/pageMarkdown";
 
 export function PageCopyButton() {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = async () => {
     try {
-      await navigator.clipboard.writeText(PAGE_MARKDOWN);
+      const response = await fetch("/md");
+      if (!response.ok) {
+        throw new Error(
+          `Failed to fetch Markdown reference: ${response.status}`,
+        );
+      }
+
+      await navigator.clipboard.writeText(await response.text());
       setCopied(true);
       setTimeout(() => setCopied(false), 1500);
     } catch {

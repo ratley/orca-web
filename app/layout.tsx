@@ -3,7 +3,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Orca CLI Reference",
-  description: "Orca CLI reference and docs.",
+  description: "Orca's machine-readable agent-lane CLI contract and operator reference.",
 };
 
 export default function RootLayout({

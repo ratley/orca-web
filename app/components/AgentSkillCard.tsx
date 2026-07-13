@@ -4,47 +4,40 @@ import { CopyButton } from "./CopyButton";
 
 export const SKILL_MD = `---
 name: orca
-description: "Orchestrate multi-step AI coding tasks via the Orca CLI. Use when: running multi-file code changes, spawning background agents, planning and executing complex tasks end-to-end. NOT for: simple single-file edits, reading code."
+description: "Dispatch and manage Codex, Claude, or Cursor lanes through Orca's machine-readable contract."
 ---
 
 # Orca
 
-Orca (orcastrator) is a CLI that breaks a task into a graph of tasks and executes it end-to-end via Codex.
+Orca is an observable agent-lane harness. It does not plan or route work for you.
 
-## Install
-npm install -g orcastrator
+## First use
+orca contract
+orca agents
 
-## Run a Task
-orca "your task here"
+Trust the live contract and manifests over remembered CLI behavior.
 
-## Key Commands
-orca <task>              Start a new run
-orca status [--last]     Check run status
-orca answer <text>       Answer a question the agent raised
-orca resume [--last]     Resume a paused run
-orca cancel [--last]     Cancel a run
-orca pr create [--last]  Open a PR for the run's branch
+## Dispatch
+# Internal worker lane
+orca dispatch --agent codex --cwd /path/to/repo --timeout 600000 "<brief>"
 
-## Config (~/.orca/config.js or ./orca.config.js)
-export default {
-  executor: "codex",           // "codex" (default)
-  sessionLogs: "./session-logs",
-  hooks: {
-    onComplete: async (event, context) => {
-      console.log(event.message, context.cwd);
-    },
-  },
-  hookCommands: {
-    onComplete: "node ./scripts/on-complete.mjs",
-  },
-  codex: { multiAgent: false },
-}
+# Named, user-followable Codex task
+orca dispatch --agent codex --surface task --label "HAPPY-123 — Fix API" --cwd /path/to/worktree "<brief>"
 
-## Notes
-- Codex executor requires ~/.codex/auth.json
-- Must be run inside a git repo
-- Run ID format: <slug>-<unix-ms>-<hex4>
-- Use orca answer to unblock a waiting run`;
+## Manage
+orca inspect <laneId> [--follow] [--since <seq>] [--wait-for blocked|done]
+orca answer <laneId> "<answer>"
+orca resume <laneId> --timeout 600000 "<follow-up>"
+orca lanes
+orca kill <laneId>
+
+## Contract rules
+- Every lane verb ends with exactly one JSON envelope on stdout.
+- dispatch prints a handle line first.
+- status blocked is successful (exit 0); inspect the envelope status.
+- Read status and result.text; continuity alone does not prove task success.
+- --surface task names a durable Codex thread but does not provision a Desktop worktree.
+- Persistent lane threads can also appear in Codex Desktop; surface is not a visibility filter.`;
 
 export function AgentSkillCard({ compact = false }: { compact?: boolean }) {
   return (
@@ -57,7 +50,6 @@ export function AgentSkillCard({ compact = false }: { compact?: boolean }) {
         overflow: "hidden",
       }}
     >
-      {/* Header row */}
       <div
         style={{
           display: "flex",
@@ -92,7 +84,6 @@ export function AgentSkillCard({ compact = false }: { compact?: boolean }) {
         </span>
       </div>
 
-      {/* Content */}
       <div style={{ position: "relative" }}>
         <CopyButton text={SKILL_MD} />
         <pre
