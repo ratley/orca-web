@@ -116,6 +116,43 @@ pre {
   border-right: 1px solid #1f1f1f;
 }
 
+.docs-sidebar-group {
+  margin-bottom: 20px;
+}
+
+.docs-sidebar-label {
+  padding-left: 16px;
+  margin-bottom: 8px;
+  color: #52525b;
+  font-family: ui-monospace, monospace;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.docs-sidebar-link {
+  display: block;
+  padding: 4px 16px;
+  color: #71717a;
+  font-family: ui-monospace, monospace;
+  font-size: 13px;
+  text-decoration: none;
+  transition:
+    color 120ms ease,
+    background-color 120ms ease,
+    box-shadow 120ms ease;
+}
+
+.docs-sidebar-link:hover {
+  color: #a1a1aa;
+}
+
+.docs-sidebar-link[aria-current="location"] {
+  color: var(--accent);
+  background: rgb(34 211 238 / 6%);
+  box-shadow: inset 2px 0 0 var(--accent);
+}
+
 .docs-main {
   flex: 1;
   min-width: 0;

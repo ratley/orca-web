@@ -1,19 +1,14 @@
 import { AgentSkillCard } from "./components/AgentSkillCard";
 import { CodeBlock } from "./components/CodeBlock";
+import { DocsSidebar, type DocsNavGroup } from "./components/DocsSidebar";
 import { InstallCommandSwitcher } from "./components/InstallCommandSwitcher";
 import { PageCopyButton } from "./components/PageCopyButton";
 
-interface NavItem {
-  id: string;
-  label: string;
-  accent?: boolean;
-}
-
-const NAV_GROUPS: Array<{ label: string; items: NavItem[] }> = [
+const NAV_GROUPS: DocsNavGroup[] = [
   {
     label: "Start",
     items: [
-      { id: "get-started", label: "Get Started", accent: true },
+      { id: "get-started", label: "Get Started" },
       { id: "mental-model", label: "Mental Model" },
       { id: "surfaces", label: "Dispatch Surfaces" },
     ],
@@ -176,46 +171,6 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
   );
 }
 
-function Sidebar() {
-  return (
-    <nav className="docs-sidebar">
-      {NAV_GROUPS.map((group) => (
-        <div key={group.label} style={{ marginBottom: "20px" }}>
-          <div
-            style={{
-              fontSize: "10px",
-              fontFamily: "ui-monospace, monospace",
-              letterSpacing: "0.1em",
-              textTransform: "uppercase",
-              color: "#52525b",
-              marginBottom: "8px",
-              paddingLeft: "16px",
-            }}
-          >
-            {group.label}
-          </div>
-          {group.items.map((item) => (
-            <a
-              key={item.id}
-              href={`#${item.id}`}
-              style={{
-                display: "block",
-                padding: "4px 16px",
-                fontSize: "13px",
-                color: item.accent ? "#22d3ee" : "#71717a",
-                textDecoration: "none",
-                fontFamily: "ui-monospace, monospace",
-              }}
-            >
-              {item.label}
-            </a>
-          ))}
-        </div>
-      ))}
-    </nav>
-  );
-}
-
 export default function Home() {
   return (
     <>
@@ -248,7 +203,7 @@ export default function Home() {
       </header>
 
       <div className="docs-shell">
-        <Sidebar />
+        <DocsSidebar groups={NAV_GROUPS} />
 
         <main className="docs-main">
           <PageCopyButton />
