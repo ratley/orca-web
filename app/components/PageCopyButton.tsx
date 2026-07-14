@@ -9,9 +9,7 @@ export function PageCopyButton() {
     try {
       const response = await fetch("/md");
       if (!response.ok) {
-        throw new Error(
-          `Failed to fetch Markdown reference: ${response.status}`,
-        );
+        throw new Error(`Failed to fetch Markdown reference: ${response.status}`);
       }
 
       await navigator.clipboard.writeText(await response.text());

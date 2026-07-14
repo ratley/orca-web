@@ -16,11 +16,13 @@ test("documents the canonical lane contract and task surface", () => {
   expect(PAGE_MARKDOWN).toContain('Success, including `status:"blocked"`');
 });
 
-test("does not present the legacy graph runner as canonical", () => {
+test("documents only the lane command surface", () => {
   expect(PAGE_MARKDOWN).not.toContain("Breaks down a task into a graph");
   expect(PAGE_MARKDOWN).not.toContain("Usage: orca run");
   expect(PAGE_MARKDOWN).not.toContain("planner.router");
   expect(PAGE_MARKDOWN).not.toContain("executor?:");
+  expect(PAGE_MARKDOWN).not.toContain("Legacy Compatibility");
+  expect(PAGE_MARKDOWN).not.toContain("Graph-era");
 });
 
 test("matches the checked-in Markdown reference", () => {

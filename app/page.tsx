@@ -33,7 +33,6 @@ const NAV_GROUPS: DocsNavGroup[] = [
       { id: "envelopes", label: "Envelopes" },
       { id: "exit-codes", label: "Exit Codes" },
       { id: "storage", label: "Durable State" },
-      { id: "legacy", label: "Legacy Compatibility" },
     ],
   },
   {
@@ -542,19 +541,6 @@ events.ndjson   # append-only evidence stream
 answer.txt      # transient blocked-answer handoff`}
               lang="text"
             />
-          </section>
-
-          <section id="legacy" style={S.section}>
-            <h2 style={S.h2}>Legacy Compatibility</h2>
-            <p style={S.p}>
-              Graph-era run, plan, status, list, cancel, setup/config, and PR commands can still appear in root help.
-              They remain compatibility surfaces, not the canonical lane architecture.
-            </p>
-            <p style={S.p}>
-              The names <code>answer</code> and <code>resume</code> exist in both surfaces. Orca selects lane handling
-              when the first argument starts with <code>lane_</code>—all lane IDs do—or when lane help is requested.
-              Other values route to legacy commands.
-            </p>
           </section>
 
           <section id="agent-skill" style={S.section}>

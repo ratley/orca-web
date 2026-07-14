@@ -295,17 +295,6 @@ answer.txt      transient blocked-question answer handoff
 
 Set `ORCA_HOME` to isolate tests or automation from personal lane history.
 
-## Legacy Compatibility
-
-Graph-era `run`, `plan`, `status`, `list`, `cancel`, setup/config, and PR
-commands can still appear in root help for compatibility. They are not the
-canonical lane architecture.
-
-The command names `answer` and `resume` exist in both surfaces. Orca selects
-the lane implementation when the first argument starts with `lane_` (all lane
-IDs do), or when lane help is requested. Other values route to the legacy
-commands.
-
 ## Source
 
 - Package and source: <https://github.com/ratley/orca>
